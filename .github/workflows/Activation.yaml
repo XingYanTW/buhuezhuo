@@ -15,7 +15,7 @@ jobs:
             
             # 把.alf上傳到Github
             - name: Upload as artifact
-              uses: actions/upload-artifact@v2  # 要用到upload-artifact@v2
+              uses: actions/upload-artifact@v3.2.1-node20  # 要用到upload-artifact@v2
               with:
                 name: ${{ steps.getLicenseFile.outputs.filePath }}
                 path: ${{ steps.getLicenseFile.outputs.filePath }}
