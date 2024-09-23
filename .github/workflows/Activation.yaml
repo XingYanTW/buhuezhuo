@@ -1,0 +1,21 @@
+name: Acquire activation file
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+    activation:
+        name: Request key
+        runs-on: ubuntu-latest
+        steps:
+            # 在Game-CI上的Unity取得手動啟用Unity的.alf檔
+            - name: Request key
+              id: getLicenseFile  # id會用在上傳的步驟
+              uses: game-ci/unity-request-activation-file@v2
+            
+            # 把.alf上傳到Github
+            - name: Upload as artifact
+              uses: actions/upload-artifact@v2  # 要用到upload-artifact@v2
+              with:
+                name: ${{ steps.getLicenseFile.outputs.filePath }}
+                path: ${{ steps.getLicenseFile.outputs.filePath }}
