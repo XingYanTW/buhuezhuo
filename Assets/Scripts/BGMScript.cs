@@ -1,24 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class BGMScript : MonoBehaviour
+namespace Main
 {
-    private AudioSource _audioSource;
-    void Awake(){
-        GameObject[] objs = GameObject.FindGameObjectsWithTag("BGM");
-
-        if (objs.Length > 1)
+    public class BGMScript : MonoBehaviour
+    {
+        private AudioSource _audioSource;
+        void Awake()
         {
-            Destroy(this.gameObject);
+            GameObject[] objs = GameObject.FindGameObjectsWithTag("BGM");
+
+            if (objs.Length > 1)
+            {
+                Destroy(this.gameObject);
+            }
+
+            DontDestroyOnLoad(this.gameObject);
+            _audioSource = GetComponent<AudioSource>();
+
         }
 
-        DontDestroyOnLoad(this.gameObject);
-        _audioSource = GetComponent<AudioSource>();
-
-    }
-
-    public void ChangeVolume(float volume){
-        _audioSource.volume = volume;
+        public void ChangeVolume(float volume)
+        {
+            _audioSource.volume = volume;
+        }
     }
 }
+

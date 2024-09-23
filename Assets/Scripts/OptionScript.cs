@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-public class OptionScript : MonoBehaviour
+namespace Main
 {
-    public void click(){
-        SceneManager.LoadScene(1);
+    public class OptionScript : MonoBehaviour
+    {
+        public void click()
+        {
+            SceneManager.LoadScene(1);
+        }
     }
 }
+

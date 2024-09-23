@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class ExitScript : MonoBehaviour
+namespace Main
 {
-    public void Click()
+    public class ExitScript : MonoBehaviour
     {
-        Application.Quit();
+        public void Click()
+        {
+            Application.Quit();
+        }
     }
 }
+
