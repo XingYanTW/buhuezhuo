@@ -1,9 +1,9 @@
 {
     "songs": [
         {
-            "id": "SongID",
-            "name": "Song Name",
-            "artist": "Artist Name",
+            "id": "testify",
+            "name": "testify",
+            "artist": "void (Mournfinale) feat. 星熊南巫",
             "levels": [
                 {
                     "diff": 0,
@@ -15,7 +15,7 @@
                 },
                 {
                     "diff": 2,
-                    "level": 99
+                    "level": 12
                 }
             ]
         }

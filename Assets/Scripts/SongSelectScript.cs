@@ -2,16 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using TMPro;
 
 public class SongSelectScript : MonoBehaviour
 {
     public TextAsset jsonFile;
     public Sprite SongSelectSprite;
+    //public TextMeshProUGUI temp;
+    public GameObject SongSelectButton;
     // Start is called before the first frame update
     void Start()
     {
         string jsonText = jsonFile.text;
         Song song = JsonUtility.FromJson<Song>(jsonText);
+        GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
         if (jsonFile != null)
         {
             Debug.Log("JSON Text: " + jsonText);
@@ -30,19 +34,26 @@ public class SongSelectScript : MonoBehaviour
             Debug.LogError("JSON file is null!");
         }
 
-        GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
-        GameObject songobj = new GameObject("SongSelectButton");
+        foreach (Songs songs in song.songs)
+        {
+            foreach (Level level in songs.levels)
+            {
+                if (level.diff == 2)
+                {
+                    GameObject songobj = GameObject.Instantiate(SongSelectButton);
+                    songobj.transform.SetParent(Canvas.transform, false);
+                    songobj.SetActive(true);
+                    songobj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = level.level.ToString();
+                    songobj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = songs.artist;
+                    songobj.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = songs.name;
+                    Debug.Log(songobj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text);
+                    Debug.Log(songobj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
+                    Debug.Log(songobj.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text);
+                }
 
-        songobj.transform.SetParent(Canvas.transform);
-        RectTransform rt = songobj.AddComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(450f, 75f);
-        rt.localPosition = new Vector3(220f, 180f, 0f);
-        rt.localScale = new Vector3(1f, 1f, 1f);
-        songobj.AddComponent<Image>();
-        songobj.GetComponent<Image>().sprite = SongSelectSprite;
-        songobj.AddComponent<Button>();
-        songobj.SetActive(true);
+            }
 
+        }
 
     }
 
