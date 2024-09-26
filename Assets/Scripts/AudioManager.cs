@@ -15,7 +15,7 @@ namespace Option
 		public Sprite AudioOff;
 		private float audioVolume;
 
-		public System.Options option = new System.Options();
+		public System.Options option = new();
 
 
 		// Invoked when the value of the slider changes.
@@ -31,6 +31,9 @@ namespace Option
 			{
 				audioButton.GetComponent<Image>().sprite = AudioOn;
 			}
+			option.audioVolume = audioSlider.value;
+			string _json = JsonUtility.ToJson(option);
+            File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
 		}
 
 		public void click()
@@ -48,8 +51,8 @@ namespace Option
 				audioSlider.value = audioVolume;
 				option.audioVolume = audioVolume;
 			}
-			//string _json = JsonUtility.ToJson(option);
-			//File.WriteAllText(Application.persistentDataPath+"/config.json", _json);
+			string _json = JsonUtility.ToJson(option);
+            File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
 		}
 
 		//void Start(){
