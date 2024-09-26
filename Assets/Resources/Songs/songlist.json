@@ -1,0 +1,23 @@
+{
+    "songs": [
+        {
+            "id": "SongID",
+            "name": "Song Name",
+            "artist": "Artist Name",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 99
+                },
+                {
+                    "diff": 1,
+                    "level": 99
+                },
+                {
+                    "diff": 2,
+                    "level": 99
+                }
+            ]
+        }
+    ]
+}

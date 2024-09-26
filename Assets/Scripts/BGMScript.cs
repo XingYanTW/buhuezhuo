@@ -24,6 +24,11 @@ namespace Main
         {
             _audioSource.volume = volume;
         }
+
+        public static void DestoryBGM(){
+            GameObject objs = GameObject.FindGameObjectWithTag("BGM");
+            Destroy(objs);
+        }
     }
 }
 

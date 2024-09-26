@@ -176,8 +176,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSlider: {fileID: 106322337}
   audioButton: {fileID: 1028552425}
-  AudioOn: {fileID: 21300000, guid: 32f77bc624ba04d4ea0fdea9854003d5, type: 3}
-  AudioOff: {fileID: 21300000, guid: add275e1932bfb74c89da33314f50255, type: 3}
+  Audio100: {fileID: 21300000, guid: b35afc4418b386c4b9b35f6eccfcc5b1, type: 3}
+  Audio60: {fileID: 21300000, guid: 20b950c47c68b33488756fcc5fb0c88b, type: 3}
+  Audio0: {fileID: 21300000, guid: 5699360b6fdf46147b49e586926d4864, type: 3}
 --- !u!114 &106322337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -488,8 +489,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -33.000023, y: 100.830025}
-  m_SizeDelta: {x: 30, y: 30}
+  m_AnchoredPosition: {x: -22.999992, y: 100.83}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1028552425
 MonoBehaviour:
@@ -567,7 +568,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 32f77bc624ba04d4ea0fdea9854003d5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b35afc4418b386c4b9b35f6eccfcc5b1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -599,8 +600,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSlider: {fileID: 106322337}
   audioButton: {fileID: 1028552425}
-  AudioOn: {fileID: 21300000, guid: 32f77bc624ba04d4ea0fdea9854003d5, type: 3}
-  AudioOff: {fileID: 21300000, guid: add275e1932bfb74c89da33314f50255, type: 3}
+  Audio100: {fileID: 21300000, guid: b35afc4418b386c4b9b35f6eccfcc5b1, type: 3}
+  Audio60: {fileID: 21300000, guid: 20b950c47c68b33488756fcc5fb0c88b, type: 3}
+  Audio0: {fileID: 21300000, guid: 5699360b6fdf46147b49e586926d4864, type: 3}
 --- !u!1 &1149335278
 GameObject:
   m_ObjectHideFlags: 0
@@ -1075,7 +1077,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2783019, g: 0.34458008, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

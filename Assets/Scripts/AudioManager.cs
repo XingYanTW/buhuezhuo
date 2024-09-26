@@ -11,8 +11,9 @@ namespace Option
 
 		public Slider audioSlider;
 		public Button audioButton;
-		public Sprite AudioOn;
-		public Sprite AudioOff;
+		public Sprite Audio100;
+		public Sprite Audio60;
+		public Sprite Audio0;
 		private float audioVolume;
 
 		public System.Options option = new();
@@ -25,29 +26,31 @@ namespace Option
 			GameObject.FindGameObjectWithTag("BGM").GetComponent<Main.BGMScript>().ChangeVolume(audioSlider.value);
 			if (audioSlider.value == 0)
 			{
-				audioButton.GetComponent<Image>().sprite = AudioOff;
+				audioButton.GetComponent<Image>().sprite = Audio0;
 			}
-			else
+			else if (audioSlider.value<=0.6){
+				audioButton.GetComponent<Image>().sprite = Audio60;
+			}else
 			{
-				audioButton.GetComponent<Image>().sprite = AudioOn;
+				audioButton.GetComponent<Image>().sprite = Audio100;
 			}
 			option.audioVolume = audioSlider.value;
-			string _json = JsonUtility.ToJson(option);
-            File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
+			//string _json = JsonUtility.ToJson(option);
+            //File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
 		}
 
 		public void click()
 		{
-			if (audioButton.GetComponent<Image>().sprite.Equals(AudioOn))
+			if (audioButton.GetComponent<Image>().sprite.Equals(Audio0))
 			{
 				audioVolume = audioSlider.value;
 				audioSlider.value = 0;
 				option.audioVolume = 0;
-				audioButton.GetComponent<Image>().sprite = AudioOff;
+				audioButton.GetComponent<Image>().sprite = Audio0;
 			}
 			else
 			{
-				audioButton.GetComponent<Image>().sprite = AudioOn;
+				audioButton.GetComponent<Image>().sprite = Audio100;
 				audioSlider.value = audioVolume;
 				option.audioVolume = audioVolume;
 			}

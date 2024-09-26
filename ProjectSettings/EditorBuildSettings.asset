@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Option.unity
     guid: 1bde35518b5a3454aa682393af9c7f33
+  - enabled: 1
+    path: Assets/Scenes/SongSelect.unity
+    guid: 5930be9904143ca45a3a4b99e7e72592
   m_configObjects: {}
