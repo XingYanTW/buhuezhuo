@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 namespace Main
 {
     public class VersionScript : MonoBehaviour
@@ -20,6 +21,11 @@ namespace Main
         void Update()
         {
 
+        }
+
+        public void DebugPlay(){
+            SceneManager.LoadScene("SongPlaying");
+            BGMScript.DestoryBGM();
         }
     }
 
