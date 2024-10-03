@@ -3,3 +3,7 @@
 
 # Current Working In Progress
 Note Judge With Perfect Great Good Miss (2024/10/3)
+Adjust Note Judge (2024/10/3)
+
+# Todo
+Hitsound
