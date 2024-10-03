@@ -7,3 +7,4 @@ Adjust Note Judge (2024/10/3)
 
 # Todo
 Hitsound
+Chart System
