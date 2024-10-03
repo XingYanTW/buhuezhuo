@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 namespace Game
@@ -9,12 +10,16 @@ namespace Game
     {
         public GameObject Note_1, Note_2, Note_3, Note_4;
         public GameObject TargetNote_1, TargetNote_2, TargetNote_3, TargetNote_4;
+        public GameObject Judge;
+        public Sprite Judge_Perfect, Judge_Great, Judge_Good, Judge_Miss;
         public float speed = 1f; // Speed at which the note moves
 
         private List<GameObject> _Note_1_List = new List<GameObject>();
         private List<GameObject> _Note_2_List = new List<GameObject>();
         private List<GameObject> _Note_3_List = new List<GameObject>();
         private List<GameObject> _Note_4_List = new List<GameObject>();
+
+        Coroutine judgeResetCoroutine;
 
         void Update()
         {
@@ -47,6 +52,8 @@ namespace Game
             }
         }
 
+
+
         void MoveNotes(List<GameObject> noteList, GameObject target)
         {
             for (int i = noteList.Count - 1; i >= 0; i--)
@@ -60,9 +67,26 @@ namespace Game
                     {
                         Destroy(noteList[i]);
                         noteList.RemoveAt(i);
+                        Judge.GetComponent<Image>().sprite = Judge_Miss;
+                        Judge.SetActive(true);
+
+                        // Reset the coroutine if it's already running
+                        if (judgeResetCoroutine != null)
+                        {
+                            StopCoroutine(judgeResetCoroutine);
+                        }
+
+                        judgeResetCoroutine = StartCoroutine(JudgeReset(Judge));
                     }
                 }
             }
+        }
+
+        IEnumerator JudgeReset(GameObject judge)
+        {
+            yield return new WaitForSeconds(0.5f);
+            judge.SetActive(false);
+            // now do something
         }
 
         void HandleTargetVisibility(KeyCode key, GameObject target)
