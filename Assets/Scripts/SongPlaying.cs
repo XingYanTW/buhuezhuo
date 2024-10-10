@@ -16,7 +16,7 @@ namespace Game
         //public Sprite Judge_Perfect, Judge_Perfect_Plus, Judge_Perfect_Minus;
         //public Sprite Judge_Great, Judge_Great_Plus, Judge_Great_Minus, Judge_Miss;
         public Sprite Judge_Perfect, Judge_Great, Judge_Good, Judge_Miss;
-        public GameObject JudgeTime;
+        public GameObject JudgeTime, Playing;
         public float speed = 1f; // Speed at which the note moves
 
         // Time windows in seconds (convert milliseconds to seconds)
@@ -40,6 +40,7 @@ namespace Game
         void Start()
         {
             StartCoroutine(TestNote());
+            Playing.GetComponent<TextMeshProUGUI>().text = new PlayButton().GetPlaySong();
         }
 
         void Update()
@@ -53,7 +54,7 @@ namespace Game
             // Handle input
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                SceneManager.LoadScene("Main");
+                SceneManager.LoadScene("SongSelect");
             }
 
             HandleTargetVisibility(KeyCode.D, TargetNote_1);

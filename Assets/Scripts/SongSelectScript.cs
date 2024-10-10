@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-using System.Data.Common;
-using Unity.VisualScripting;
 
 public class SongSelectScript : MonoBehaviour
 {
@@ -16,6 +14,7 @@ public class SongSelectScript : MonoBehaviour
     public Image Jacket;
     public TextMeshProUGUI nameobj, artistobj;
     public AudioSource preview;
+
 
     void Start()
     {
@@ -82,7 +81,11 @@ public class SongSelectScript : MonoBehaviour
     {
     }
 
+    private PlayButton variables = new();
+
     void UpdateSong(string SongID, string SongName, string SongArtist){
+        new PlayButton().SetPlaySong(SongID);
+        Debug.Log(new PlayButton().GetPlaySong());
         var _jacket = Resources.Load<Sprite>("Songs/"+SongID+"/Jacket");
         Jacket.GetComponent<Image>().sprite = _jacket;
         Debug.Log(_jacket);
