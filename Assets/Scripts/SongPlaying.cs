@@ -35,16 +35,30 @@ namespace Game
         private List<float> _Note_3_Times = new List<float>();
         private List<float> _Note_4_Times = new List<float>();
 
+        public GameObject BGM;
+
         Coroutine judgeResetCoroutine;
+
+        private Boolean playing;
 
         void Start()
         {
+            playing = false;
             StartCoroutine(TestNote());
-            Playing.GetComponent<TextMeshProUGUI>().text = new PlayButton().GetPlaySong();
+            Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
+            AudioClip _BGM = Resources.Load<AudioClip>("Songs/"+gameObject.AddComponent<PlayButton>().GetPlaySong()+"/track");
+            BGM.GetComponent<AudioSource>().clip = _BGM;
+            BGM.GetComponent<AudioSource>().Play();
+            playing = true;
         }
 
         void Update()
         {
+
+            if(!BGM.GetComponent<AudioSource>().isPlaying && (playing = true)){
+                SceneManager.LoadScene("SongSelect");
+            }
+
             // Move all notes in the lists towards their targets
             MoveNotes(_Note_1_List, TargetNote_1);
             MoveNotes(_Note_2_List, TargetNote_2);

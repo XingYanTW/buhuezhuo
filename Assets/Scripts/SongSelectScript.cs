@@ -80,12 +80,9 @@ public class SongSelectScript : MonoBehaviour
     void Update()
     {
     }
-
-    private PlayButton variables = new();
-
     void UpdateSong(string SongID, string SongName, string SongArtist){
-        new PlayButton().SetPlaySong(SongID);
-        Debug.Log(new PlayButton().GetPlaySong());
+        gameObject.AddComponent<PlayButton>().SetPlaySong(SongID);
+        //Debug.Log(new PlayButton().GetPlaySong());
         var _jacket = Resources.Load<Sprite>("Songs/"+SongID+"/Jacket");
         Jacket.GetComponent<Image>().sprite = _jacket;
         Debug.Log(_jacket);
