@@ -5,11 +5,30 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using System.Linq;
 
 namespace Game
 {
     public class SongPlaying : MonoBehaviour
     {
+
+
+
+        // Define a structure to store note data
+        public class Note
+        {
+            public int lane;
+            public float beat;
+
+            public Note(int lane, float beat)
+            {
+                this.lane = lane;
+                this.beat = beat;
+            }
+        }
+
+
+
         public GameObject Note_1, Note_2, Note_3, Note_4;
         public GameObject TargetNote_1, TargetNote_2, TargetNote_3, TargetNote_4;
         public GameObject Judge;
@@ -37,25 +56,55 @@ namespace Game
 
         public GameObject BGM;
 
+        public GameObject timeToSpawnOBJ, songTimeOBJ, BPMOBJ;
+
         Coroutine judgeResetCoroutine;
 
         private Boolean playing;
 
+
+        private float bpm;
+        private float secPerBeat;  
+        private List<Note> notes = new List<Note>();
+        private float songTime = 0f;
+        private Dictionary<Note, bool> noteSpawned = new Dictionary<Note, bool>();
+
         void Start()
         {
             playing = false;
-            StartCoroutine(TestNote());
+            //StartCoroutine(TestNote());
             Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
-            AudioClip _BGM = Resources.Load<AudioClip>("Songs/"+gameObject.AddComponent<PlayButton>().GetPlaySong()+"/track");
+            AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
             BGM.GetComponent<AudioSource>().clip = _BGM;
             BGM.GetComponent<AudioSource>().Play();
+            var ChartData = Resources.Load<TextAsset>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/chart");
+            Debug.Log(ChartData);
+            ParseChart(ChartData.ToString());
+            secPerBeat = 60f / bpm;
             playing = true;
         }
 
         void Update()
         {
+            
+            songTime = BGM.GetComponent<AudioSource>().time;
+            songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
+            int index=0;
+            foreach (var note in notes)
+            {
+                index++;
+                float timeToSpawn= note.beat * secPerBeat*index;
+                timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
+                if (songTime >= timeToSpawn - 2f && noteSpawned[note]==false)
+                {
+                    Debug.Log(timeToSpawn);
+                    CreateNote(note.lane);
+                    noteSpawned[note] = true;
+                }
+            }
 
-            if(!BGM.GetComponent<AudioSource>().isPlaying && (playing = true)){
+            if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
+            {
                 SceneManager.LoadScene("SongSelect");
             }
 
@@ -83,10 +132,53 @@ namespace Game
             {
                 if (Input.GetKeyDown(keys[i]))
                 {
-                    HandleJudgment(i + 1);
+                    HandleJudgment(i+1);
                 }
             }
         }
+
+        void ParseChart(string chartData)
+        {
+            int bpmStart = chartData.IndexOf('(') + 1;
+            int bpmEnd = chartData.IndexOf(')');
+            bpm = float.Parse(chartData.Substring(bpmStart, bpmEnd - bpmStart));
+
+            string noteData = chartData.Substring(bpmEnd + 1);
+            string[] notesArray = noteData.Split(',');
+
+            float currentBeat = 0f;
+
+            foreach (var note in notesArray)
+            {
+                if (note.StartsWith("{"))
+                {
+                    // Handle beats
+                    int beatStart = note.IndexOf('{') + 1;
+                    int beatEnd = note.IndexOf('}');
+                    currentBeat = float.Parse(note.Substring(beatStart, beatEnd - beatStart));
+                }
+                else if (!string.IsNullOrEmpty(note))
+                {
+                    // Handle lane notes
+                    string[] laneNotes = note.Split(',');
+
+                    foreach (var laneNote in laneNotes)
+                    {
+                        if (int.TryParse(laneNote, out int lane))
+                        {
+                            notes.Add(new Note(lane, currentBeat));
+                            //Debug.Log(lane+"/"+currentBeat);
+                        }
+                    }
+                }
+            }
+
+            foreach (var note in notes)
+            {
+                noteSpawned[note] = false;
+            }
+        }
+
 
         void MoveNotes(List<GameObject> noteList, GameObject target)
         {
@@ -95,14 +187,14 @@ namespace Game
                 if (noteList[i] != null && target != null)
                 {
                     noteList[i].transform.position = Vector3.MoveTowards(noteList[i].transform.position, target.transform.position, speed * Time.deltaTime);
-                    JudgeTime.GetComponent<TextMeshProUGUI>().text = Mathf.Round(noteList[i].transform.position.y) +"/"+ Mathf.Round(target.transform.position.y);
+                    JudgeTime.GetComponent<TextMeshProUGUI>().text = Mathf.Round(noteList[i].transform.position.y) + "/" + Mathf.Round(target.transform.position.y);
                     // Destroy note if it reaches the target and remove it from the list
                     if (Mathf.Round(noteList[i].transform.position.y) == Mathf.Round(target.transform.position.y))
                     {
                         Destroy(noteList[i]);
                         noteList.RemoveAt(i);
                         DisplayJudgeResult(Judge_Miss);
-                        
+
                     }
                 }
             }
@@ -143,6 +235,7 @@ namespace Game
 
         void CreateNote(int note)
         {
+            //Debug.Log(note);
             GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
             GameObject newNote = null;
 
@@ -223,7 +316,7 @@ namespace Game
                     DisplayJudgeResult(Judge_Perfect);
                 }
                 else if (timeDiff <= greatWindow * 2)
-                {   
+                {
                     DisplayJudgeResult(Judge_Great);
                 }
                 else if (timeDiff <= greatWindow)
