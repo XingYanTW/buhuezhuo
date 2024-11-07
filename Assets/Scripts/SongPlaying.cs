@@ -72,8 +72,8 @@ namespace Game
         void Start()
         {
             playing = false;
-            //StartCoroutine(TestNote());
-            Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
+            StartCoroutine(TestNote());
+            /*Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
             BGM.GetComponent<AudioSource>().clip = _BGM;
             BGM.GetComponent<AudioSource>().Play();
@@ -81,7 +81,7 @@ namespace Game
             Debug.Log(ChartData);
             ParseChart(ChartData.ToString());
             secPerBeat = 60f / bpm;
-            playing = true;
+            playing = true;*/
         }
 
         void Update()
@@ -105,7 +105,7 @@ namespace Game
 
             if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
             {
-                SceneManager.LoadScene("SongSelect");
+                //SceneManager.LoadScene("SongSelect");
             }
 
             // Move all notes in the lists towards their targets

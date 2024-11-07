@@ -1954,9 +1954,9 @@ MonoBehaviour:
   JudgeTime: {fileID: 1066013203}
   Playing: {fileID: 265268111}
   speed: 1000
-  perfectWindow: 33
-  greatWindow: 66
-  missWindow: 200
+  perfectWindow: 60
+  greatWindow: 126
+  missWindow: 160
   BGM: {fileID: 144473961}
   timeToSpawnOBJ: {fileID: 1336939741}
   songTimeOBJ: {fileID: 871260162}
