@@ -58,19 +58,23 @@ namespace Game
 
         public GameObject timeToSpawnOBJ, songTimeOBJ, BPMOBJ;
 
+        public GameObject pause;
+
         Coroutine judgeResetCoroutine;
 
         private Boolean playing;
+        private Boolean isPause;
 
 
         private float bpm;
-        private float secPerBeat;  
+        private float secPerBeat;
         private List<Note> notes = new List<Note>();
         private float songTime = 0f;
         private Dictionary<Note, bool> noteSpawned = new Dictionary<Note, bool>();
 
         void Start()
         {
+            isPause = false;
             playing = false;
             StartCoroutine(TestNote());
             /*Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
@@ -86,16 +90,16 @@ namespace Game
 
         void Update()
         {
-            
+
             songTime = BGM.GetComponent<AudioSource>().time;
             songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
-            int index=0;
+            int index = 0;
             foreach (var note in notes)
             {
                 index++;
-                float timeToSpawn= note.beat * secPerBeat*index;
+                float timeToSpawn = note.beat * secPerBeat * index;
                 timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
-                if (songTime >= timeToSpawn - 2f && noteSpawned[note]==false)
+                if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
                 {
                     Debug.Log(timeToSpawn);
                     CreateNote(note.lane);
@@ -109,15 +113,21 @@ namespace Game
             }
 
             // Move all notes in the lists towards their targets
-            MoveNotes(_Note_1_List, TargetNote_1);
-            MoveNotes(_Note_2_List, TargetNote_2);
-            MoveNotes(_Note_3_List, TargetNote_3);
-            MoveNotes(_Note_4_List, TargetNote_4);
+            if (!isPause)
+            {
+                MoveNotes(_Note_1_List, TargetNote_1);
+                MoveNotes(_Note_2_List, TargetNote_2);
+                MoveNotes(_Note_3_List, TargetNote_3);
+                MoveNotes(_Note_4_List, TargetNote_4);
+            }
+
 
             // Handle input
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                SceneManager.LoadScene("SongSelect");
+                //SceneManager.LoadScene("SongSelect");
+                pause.SetActive(!pause.activeSelf);
+                isPause = !isPause;
             }
 
             HandleTargetVisibility(KeyCode.D, TargetNote_1);
@@ -132,7 +142,7 @@ namespace Game
             {
                 if (Input.GetKeyDown(keys[i]))
                 {
-                    HandleJudgment(i+1);
+                    HandleJudgment(i + 1);
                 }
             }
         }
@@ -219,6 +229,8 @@ namespace Game
                 yield return new WaitForSeconds(.5f);
                 CreateNote(4);
             }
+
+
         }
 
         void HandleTargetVisibility(KeyCode key, GameObject target)
