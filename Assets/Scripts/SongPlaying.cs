@@ -76,8 +76,8 @@ namespace Game
         {
             isPause = false;
             playing = false;
-            StartCoroutine(TestNote());
-            /*Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
+            //StartCoroutine(TestNote());
+            Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
             BGM.GetComponent<AudioSource>().clip = _BGM;
             BGM.GetComponent<AudioSource>().Play();
@@ -85,7 +85,7 @@ namespace Game
             Debug.Log(ChartData);
             ParseChart(ChartData.ToString());
             secPerBeat = 60f / bpm;
-            playing = true;*/
+            playing = true;
         }
 
         void Update()
@@ -370,6 +370,22 @@ namespace Game
             }
 
             judgeResetCoroutine = StartCoroutine(JudgeReset(Judge));
+        }
+
+        public void RemuseButton()
+        {
+            isPause=false;
+            pause.SetActive(false);
+        }
+
+        public void RestartButton()
+        {
+
+        }
+
+        public void ExitButton()
+        {
+
         }
     }
 }
