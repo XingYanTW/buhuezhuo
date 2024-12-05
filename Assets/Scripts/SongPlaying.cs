@@ -63,7 +63,7 @@ namespace Game
         Coroutine judgeResetCoroutine;
 
         private Boolean playing;
-        private Boolean isPause;
+        private Boolean isPause=true;
 
 
         private float bpm;
@@ -74,38 +74,41 @@ namespace Game
 
         void Start()
         {
-            isPause = false;
             playing = false;
             //StartCoroutine(TestNote());
             Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
+            
             BGM.GetComponent<AudioSource>().clip = _BGM;
-            BGM.GetComponent<AudioSource>().Play();
             var ChartData = Resources.Load<TextAsset>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/chart");
-            Debug.Log(ChartData);
+            //Debug.Log(ChartData);
             ParseChart(ChartData.ToString());
             secPerBeat = 60f / bpm;
-            playing = true;
+            StartCoroutine(StartSongPlaying());
+            
         }
 
         void Update()
         {
-
-            songTime = BGM.GetComponent<AudioSource>().time;
-            songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
-            int index = 0;
-            foreach (var note in notes)
+            if (!isPause)
             {
-                index++;
-                float timeToSpawn = note.beat * secPerBeat * index;
-                timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
-                if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
+                songTime = BGM.GetComponent<AudioSource>().time;
+                songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
+                int index = 0;
+                foreach (var note in notes)
                 {
-                    Debug.Log(timeToSpawn);
-                    CreateNote(note.lane);
-                    noteSpawned[note] = true;
+                    index++;
+                    float timeToSpawn = note.beat * secPerBeat * index;
+                    timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
+                    if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
+                    {
+                        //Debug.Log(timeToSpawn);
+                        CreateNote(note.lane);
+                        noteSpawned[note] = true;
+                    }
                 }
             }
+
 
             if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
             {
@@ -128,6 +131,13 @@ namespace Game
                 //SceneManager.LoadScene("SongSelect");
                 pause.SetActive(!pause.activeSelf);
                 isPause = !isPause;
+                if (isPause)
+                {
+                    BGM.GetComponent<AudioSource>().Pause();
+                }else{
+                    BGM.GetComponent<AudioSource>().UnPause();
+                }
+
             }
 
             HandleTargetVisibility(KeyCode.D, TargetNote_1);
@@ -145,6 +155,13 @@ namespace Game
                     HandleJudgment(i + 1);
                 }
             }
+        }
+
+        IEnumerator StartSongPlaying(){
+            yield return new WaitForSeconds(10f);
+            playing = true;
+            isPause = false;
+            BGM.GetComponent<AudioSource>().Play();
         }
 
         void ParseChart(string chartData)
@@ -174,14 +191,20 @@ namespace Game
 
                     foreach (var laneNote in laneNotes)
                     {
-                        if (int.TryParse(laneNote, out int lane))
+                        if (string.IsNullOrWhiteSpace(laneNote))
+                        {
+                            // Handle empty note explicitly
+                            notes.Add(new Note(-1, currentBeat)); // -1 indicates an empty lane
+                        }
+                        else if (int.TryParse(laneNote, out int lane))
                         {
                             notes.Add(new Note(lane, currentBeat));
-                            //Debug.Log(lane+"/"+currentBeat);
                         }
                     }
+
                 }
             }
+            Debug.Log("notesArray:"+notesArray);
 
             foreach (var note in notes)
             {
@@ -374,8 +397,9 @@ namespace Game
 
         public void RemuseButton()
         {
-            isPause=false;
+            isPause = false;
             pause.SetActive(false);
+            BGM.GetComponent<AudioSource>().UnPause();
         }
 
         public void RestartButton()
@@ -385,7 +409,7 @@ namespace Game
 
         public void ExitButton()
         {
-
+            SceneManager.LoadScene("SongSelect");
         }
     }
 }

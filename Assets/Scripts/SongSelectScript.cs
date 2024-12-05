@@ -21,6 +21,7 @@ public class SongSelectScript : MonoBehaviour
         string jsonText = jsonFile.text;
         Song song = JsonUtility.FromJson<Song>(jsonText);
         GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
+        GameObject songlist = GameObject.FindGameObjectWithTag("songlist");
         if (jsonFile != null)
         {
             //Debug.Log("JSON Text: " + jsonText);
@@ -47,7 +48,7 @@ public class SongSelectScript : MonoBehaviour
                 {
                     GameObject songobj = GameObject.Instantiate(SongSelectButton);
                     songobj.name = songs.id;
-                    songobj.transform.SetParent(Canvas.transform, false);
+                    songobj.transform.SetParent(songlist.transform, false);
                     RectTransform rt = songobj.transform.GetComponent<RectTransform>();
                     rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, rt.anchoredPosition.y - (index * 90));
                     //Debug.Log(index);

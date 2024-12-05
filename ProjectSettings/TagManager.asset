@@ -6,6 +6,7 @@ TagManager:
   tags:
   - BGM
   - Canvas
+  - songlist
   layers:
   - Default
   - TransparentFX
