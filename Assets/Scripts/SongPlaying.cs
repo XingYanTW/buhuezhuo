@@ -158,7 +158,7 @@ namespace Game
         }
 
         IEnumerator StartSongPlaying(){
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(1f);
             playing = true;
             isPause = false;
             BGM.GetComponent<AudioSource>().Play();
