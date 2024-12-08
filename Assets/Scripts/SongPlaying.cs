@@ -14,16 +14,83 @@ namespace Game
 
 
 
-        // Define a structure to store note data
-        public class Note
+        enum TokenType
         {
-            public int lane;
-            public float beat;
+            BPM,        // (120)
+            Beats,      // {4}
+            Note,       // 4, 3, etc.
+            Rest,      // ,
+            Slash,      // /
+            NewLine,    // \n
+            Comment,    // # ...
+        }
 
-            public Note(int lane, float beat)
+        class PostInfo
+        {
+            public int Line { get; }
+            public Range Range { get; }
+
+            public PostInfo(int line, Range position)
             {
-                this.lane = lane;
-                this.beat = beat;
+                Line = line;
+                Range = position;
+            }
+
+            public override string ToString() => $"{Line}:{Range}";
+        }
+
+        class Token : PostInfo
+        {
+            public Token(TokenType type, string value, int line, Range position)
+                : base(line, position)
+            {
+                Type = type;
+                Value = value;
+            }
+
+            public Token(TokenType type, string value, int line, int start, int lan = 1)
+                : this(type, value, line, new Range(start, start + lan)) { }
+
+            public TokenType Type { get; }
+            public string Value { get; }
+
+            public override string ToString() => $"{Type}({Value}) at {base.ToString()}";
+        }
+
+        class ErrorPos : Exception
+        {
+            public PostInfo PositionInfo { get; }
+
+
+            public ErrorPos(string message, int line, Range position)
+                : base($"Error at {line}:{position} - {message}")
+            {
+                PositionInfo = new PostInfo(line, position);
+            }
+
+            public ErrorPos(string message, PostInfo posInfo)
+                : base($"Error at {posInfo} - {message}")
+            {
+                PositionInfo = posInfo;
+            }
+
+            public ErrorPos(string message, int line, int start, int lan = 1)
+                : this(message, line, new Range(start, start + lan))
+            {
+            }
+
+            public override string ToString() => $"{Message} (at {PositionInfo})";
+        }
+
+        class Note
+        {
+            public int Lane { get; }
+            public float Time { get; }
+
+            public Note(int lane, float time)
+            {
+                Lane = lane;
+                Time = time;
             }
         }
 
@@ -63,7 +130,7 @@ namespace Game
         Coroutine judgeResetCoroutine;
 
         private Boolean playing;
-        private Boolean isPause=true;
+        private Boolean isPause = true;
 
 
         private float bpm;
@@ -78,14 +145,203 @@ namespace Game
             //StartCoroutine(TestNote());
             Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
-            
+
             BGM.GetComponent<AudioSource>().clip = _BGM;
             var ChartData = Resources.Load<TextAsset>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/chart");
             //Debug.Log(ChartData);
             ParseChart(ChartData.ToString());
+            string chart = ChartData.ToString();
             secPerBeat = 60f / bpm;
+            var tokens = LexicalAnalysis(chart, out var tokenWarnings);
+            // foreach (var token in tokens)
+            //   Console.WriteLine(token);
+            foreach (var warning in tokenWarnings)
+                PrintWarning(chart, warning);
+
+            var notes = ParseTokens(tokens, out var noteWarnings);
+            foreach (var note in notes)
+                Console.WriteLine($"{note.Time}: {note.Lane}");
+
+            foreach (var warning in noteWarnings)
+                PrintWarning(chart, warning);
             StartCoroutine(StartSongPlaying());
-            
+
+        }
+
+        static void PrintWarning(string input, ErrorPos warning)
+        {
+            var posInfo = warning.PositionInfo;
+            var posRange = posInfo.Range;
+
+            int errorStartPos = posRange.Start.Value;
+            int errorEndPos = posRange.End.Value;
+            string lineStr = input.Split('\n')[posInfo.Line];
+            string errorStr = lineStr[errorStartPos..errorEndPos];
+
+            int startPos = Math.Max(0, errorStartPos - 10);
+            int endPos = Math.Min(lineStr.Length, posRange.End.Value + 10);
+            int errorStartOffset = errorStartPos - startPos;
+
+            string warningMessage = $"{warning.Message}:\n";
+            if (startPos != 0)
+            {
+            warningMessage += "...";
+            errorStartOffset += 3;
+            }
+            warningMessage += lineStr[startPos..errorStartPos];
+
+            warningMessage += $"<color=yellow>{lineStr[errorStartPos..errorEndPos]}</color>";
+
+            warningMessage += lineStr[errorEndPos..endPos];
+            if (endPos < lineStr.Length) warningMessage += "...";
+            warningMessage += "\n";
+
+            string caret = new string(' ', errorStartOffset) + new string('^', errorStr.Length);
+            warningMessage += caret;
+
+            Debug.LogWarning(warningMessage);
+        }
+
+        private List<Token> LexicalAnalysis(string input, out List<ErrorPos> warnings)
+        {
+            warnings = new List<ErrorPos>();
+            List<Token> tokens = new List<Token>();
+            int line = 0, position = 0;
+
+            for (int i = 0; i < input.Length; i++, position++)
+            {
+                char c = input[i];
+                Token token = null;
+
+                switch (c)
+                {
+                    case '(':
+                        {
+                            int endBpm = input.IndexOf(')', i);
+                            if (endBpm == -1)
+                            {
+                                warnings.Add(new ErrorPos("Unclosed BPM token", line, i, Math.Max(input.Length, 10)));
+                                break;
+                            }
+
+                            int len = endBpm - i;
+                            token = new Token(TokenType.BPM, input.Substring(i + 1, len - 1), line, i, len);
+                            i = endBpm;
+                            position += len;
+                        }
+                        break;
+
+                    case '{':
+                        {
+                            int endBeats = input.IndexOf('}', i);
+                            if (endBeats == -1)
+                            {
+                                warnings.Add(new ErrorPos("Unclosed Beats token", line, i, Math.Max(input.Length, 10)));
+                                break;
+                            }
+
+                            int len = endBeats - i;
+                            token = new Token(TokenType.Beats, input.Substring(i + 1, len - 1), line, position, len);
+                            i = endBeats;
+                            position += len;
+                        }
+                        break;
+
+                    case ',':
+                        token = new Token(TokenType.Rest, ",", line, position);
+                        break;
+
+                    case '/':
+                        token = new Token(TokenType.Slash, "/", line, position);
+                        break;
+
+                    case '\n':
+                        token = new Token(TokenType.NewLine, "\\n", line, position);
+                        line++;
+                        position = -1;
+                        break;
+
+                    case '#':
+                        int endComment = input.IndexOf('\n', i);
+                        string comment = endComment == -1
+                            ? input[(i + 1)..]
+                            : input.Substring(i + 1, endComment - i - 1);
+                        token = new Token(TokenType.Comment, comment, line, position);
+                        i = endComment == -1 ? input.Length : endComment - 1;
+                        break;
+
+                    case ' ':
+                        break;
+
+                    default:
+                        if (char.IsDigit(c))
+                            token = new Token(TokenType.Note, c.ToString(), line, position);
+                        else
+                            warnings.Add(new ErrorPos("Invalid character", line, position));
+                        break;
+                }
+
+                if (token != null)
+                    tokens.Add(token);
+            }
+            return tokens;
+
+        }
+
+        private List<Note> ParseTokens(List<Token> tokens, out List<ErrorPos> warnings)
+        {
+            warnings = new List<ErrorPos>();
+            List<Note> notes = new List<Note>();
+            HashSet<int> currentNotes = new HashSet<int>();
+
+            float bpm = 120;
+            int beatsPerMeasure = 4;
+            float currentTime = 0;
+
+            Token lastToken = null;
+
+            foreach (var token in tokens)
+            {
+                if (token.Type != TokenType.Slash && token.Type != TokenType.Note) currentNotes.Clear();
+                if (token.Type != TokenType.Note && lastToken?.Type == TokenType.Slash)
+                    warnings.Add(new ErrorPos("Slash without note", token.Line, token.Range));
+
+                switch (token.Type)
+                {
+                    case TokenType.BPM: // (120)
+                        bpm = float.Parse(token.Value);
+                        break;
+
+                    case TokenType.Beats: // {<value>}
+                        beatsPerMeasure = int.Parse(token.Value);
+                        break;
+
+                    case TokenType.Slash: // /
+                        if (lastToken?.Type == TokenType.Slash)
+                            warnings.Add(new ErrorPos("Double slash", token.Line, token.Range));
+                        break;
+
+                    case TokenType.Rest: // ,
+                        currentTime += 60f / bpm * (beatsPerMeasure / 4f);
+                        break;
+
+                    case TokenType.Note: // number
+                        int lane = int.Parse(token.Value);
+                        if (lane < 1 || lane > 4)
+                            warnings.Add(new ErrorPos("Invalid note", token.Line, token.Range));
+                        if (!currentNotes.Add(lane))
+                            warnings.Add(new ErrorPos("Duplicate note", token.Line, token.Range));
+                        else notes.Add(new Note(lane, currentTime));
+                        break;
+
+                    default:
+                        // Ignore other token types
+                        break;
+                }
+                lastToken = token;
+            }
+
+            return notes;
         }
 
         void Update()
@@ -98,12 +354,12 @@ namespace Game
                 foreach (var note in notes)
                 {
                     index++;
-                    float timeToSpawn = note.beat * secPerBeat * index;
+                    float timeToSpawn = note.Time * secPerBeat * index;
                     timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
                     if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
                     {
                         //Debug.Log(timeToSpawn);
-                        CreateNote(note.lane);
+                        CreateNote(note.Lane);
                         noteSpawned[note] = true;
                     }
                 }
@@ -134,7 +390,9 @@ namespace Game
                 if (isPause)
                 {
                     BGM.GetComponent<AudioSource>().Pause();
-                }else{
+                }
+                else
+                {
                     BGM.GetComponent<AudioSource>().UnPause();
                 }
 
@@ -157,7 +415,8 @@ namespace Game
             }
         }
 
-        IEnumerator StartSongPlaying(){
+        IEnumerator StartSongPlaying()
+        {
             yield return new WaitForSeconds(1f);
             playing = true;
             isPause = false;
@@ -204,7 +463,7 @@ namespace Game
 
                 }
             }
-            Debug.Log("notesArray:"+notesArray);
+            Debug.Log("notesArray:" + notesArray);
 
             foreach (var note in notes)
             {
