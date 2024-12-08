@@ -3931,7 +3931,7 @@ MonoBehaviour:
   speed: 1000
   perfectWindow: 60
   greatWindow: 126
-  missWindow: 160
+  missWindow: 135
   BGM: {fileID: 144473961}
   timeToSpawnOBJ: {fileID: 1336939741}
   songTimeOBJ: {fileID: 871260162}

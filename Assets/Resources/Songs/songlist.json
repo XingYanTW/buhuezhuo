@@ -1,63 +1,6 @@
 {
     "songs": [
         {
-            "id": "pandora",
-            "name": "PANDORA PARADOXXX",
-            "artist": "削除",
-            "levels": [
-                {
-                    "diff": 0,
-                    "level": 13
-                },
-                {
-                    "diff": 1,
-                    "level": 14
-                },
-                {
-                    "diff": 2,
-                    "level": 15
-                }
-            ]
-        },
-        {
-            "id": "tsunagite",
-            "name": "系ぎて",
-            "artist": "rintaro soma",
-            "levels": [
-                {
-                    "diff": 0,
-                    "level": 13
-                },
-                {
-                    "diff": 1,
-                    "level": 14
-                },
-                {
-                    "diff": 2,
-                    "level": 15
-                }
-            ]
-        },
-        {
-            "id": "SongID",
-            "name": "Temp Song",
-            "artist": "this is artist",
-            "levels": [
-                {
-                    "diff": 0,
-                    "level": 13
-                },
-                {
-                    "diff": 1,
-                    "level": 14
-                },
-                {
-                    "diff": 2,
-                    "level": 15
-                }
-            ]
-        },
-        {
             "id": "全世界共通リズム感テスト",
             "name": "全世界共通リズム感テスト",
             "artist": "☆リズムに合わせてボタンを叩き達成率を競うゲームです☆",
@@ -78,7 +21,7 @@
         },
         {
             "id": "raputa",
-            "name": "raputa",
+            "name": "raputa(Unplayable)",
             "artist": "Sasakure.UK x TJ.Hengneil",
             "levels": [
                 {
@@ -99,6 +42,25 @@
             "id": "Designant",
             "name": "Designant.",
             "artist": "Designant",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 8
+                },
+                {
+                    "diff": 1,
+                    "level": 10
+                },
+                {
+                    "diff": 2,
+                    "level": 12
+                }
+            ]
+        },
+        {
+            "id": "メズマライザー",
+            "name": "メズマライザー.",
+            "artist": "Satsuki",
             "levels": [
                 {
                     "diff": 0,

@@ -144,6 +144,7 @@ namespace Game
         int totalNotes;
         int score = 0;
         const int maxScore = 1000000;
+        int displayedScore = 0; // 用於顯示動畫的分數
 
         public GameObject countPerfectOBJ, countGreatOBJ, countMissOBJ, countComboOBJ, scoreOBJ;
 
@@ -152,19 +153,14 @@ namespace Game
         void Start()
         {
             playing = false;
-            //StartCoroutine(TestNote());
             Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
 
             BGM.GetComponent<AudioSource>().clip = _BGM;
             var ChartData = Resources.Load<TextAsset>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/chart");
-            //Debug.Log(ChartData);
-            //ParseChart(ChartData.ToString());
             string chart = ChartData.ToString();
             secPerBeat = 60f / bpm;
             var tokens = LexicalAnalysis(chart, out var tokenWarnings);
-            // foreach (var token in tokens)
-            //   Debug.Log(token);
             foreach (var warning in tokenWarnings)
                 PrintWarning(chart, warning);
 
@@ -401,12 +397,31 @@ namespace Game
                 }
             }
 
-            // Update the count of perfect, great, miss, and combo
+            // Update the count of perfect, great, miss, combo, and score
             countPerfectOBJ.GetComponent<TextMeshProUGUI>().text = "Perfect: " + countPerfect;
             countGreatOBJ.GetComponent<TextMeshProUGUI>().text = "Great: " + countGreat;
             countMissOBJ.GetComponent<TextMeshProUGUI>().text = "Miss: " + countMiss;
-            countComboOBJ.GetComponent<TextMeshProUGUI>().text = "Combo: " + combo + "/" + totalNotes;
-            scoreOBJ.GetComponent<TextMeshProUGUI>().text = score.ToString("D7"); // 格式化分數為7位數
+            countComboOBJ.GetComponent<TextMeshProUGUI>().text = combo.ToString();
+            //deactivate combo display if combo is 0
+            if (combo == 0)
+            {
+                countComboOBJ.SetActive(false);
+            }
+            else
+            {
+                countComboOBJ.SetActive(true);
+            }
+
+            // 更新顯示的分數，使用動畫效果
+            if (displayedScore < score)
+            {
+                displayedScore += Mathf.CeilToInt((score - displayedScore) * 0.1f);
+                if (displayedScore > score)
+                {
+                    displayedScore = score;
+                }
+            }
+            scoreOBJ.GetComponent<TextMeshProUGUI>().text = displayedScore.ToString("D7"); // 格式化分數為7位數
 
             if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
             {
