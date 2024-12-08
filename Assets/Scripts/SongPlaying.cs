@@ -356,316 +356,317 @@ namespace Game
                         break;
                 }
             }
+        }
 
-            void Update()
+        void Update()
+        {
+            if (!isPause)
             {
-                if (!isPause)
-                {
-                    songTime = BGM.GetComponent<AudioSource>().time;
-                    songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
-                    int index = 0;
-                    foreach (var note in notes)
-                    {
-                        index++;
-                        float timeToSpawn = note.Time * secPerBeat * index;
-                        timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
-                        if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
-                        {
-                            //Debug.Log(timeToSpawn);
-                            CreateNote(note.Lane);
-                            noteSpawned[note] = true;
-                        }
-                    }
-                }
-
-
-                if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
-                {
-                    //SceneManager.LoadScene("SongSelect");
-                }
-
-                // Move all notes in the lists towards their targets
-                if (!isPause)
-                {
-                    MoveNotes(_Note_1_List, TargetNote_1);
-                    MoveNotes(_Note_2_List, TargetNote_2);
-                    MoveNotes(_Note_3_List, TargetNote_3);
-                    MoveNotes(_Note_4_List, TargetNote_4);
-                }
-
-
-                // Handle input
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    //SceneManager.LoadScene("SongSelect");
-                    pause.SetActive(!pause.activeSelf);
-                    isPause = !isPause;
-                    if (isPause)
-                    {
-                        BGM.GetComponent<AudioSource>().Pause();
-                    }
-                    else
-                    {
-                        BGM.GetComponent<AudioSource>().UnPause();
-                    }
-
-                }
-
-                HandleTargetVisibility(KeyCode.D, TargetNote_1);
-                HandleTargetVisibility(KeyCode.F, TargetNote_2);
-                HandleTargetVisibility(KeyCode.J, TargetNote_3);
-                HandleTargetVisibility(KeyCode.K, TargetNote_4);
-
-                // Instantiate notes on key press and calculate judgment
-                KeyCode[] keys = { KeyCode.D, KeyCode.F, KeyCode.J, KeyCode.K };
-
-                for (int i = 0; i < keys.Length; i++)
-                {
-                    if (Input.GetKeyDown(keys[i]))
-                    {
-                        HandleJudgment(i + 1);
-                    }
-                }
-            }
-
-            IEnumerator StartSongPlaying()
-            {
-                yield return new WaitForSeconds(1f);
-                playing = true;
-                isPause = false;
-                BGM.GetComponent<AudioSource>().Play();
-            }
-
-            void ParseChart(string chartData)
-            {
-                int bpmStart = chartData.IndexOf('(') + 1;
-                int bpmEnd = chartData.IndexOf(')');
-                bpm = float.Parse(chartData.Substring(bpmStart, bpmEnd - bpmStart));
-
-                string noteData = chartData.Substring(bpmEnd + 1);
-                string[] notesArray = noteData.Split(',');
-
-                float currentBeat = 0f;
-
-                foreach (var note in notesArray)
-                {
-                    if (note.StartsWith("{"))
-                    {
-                        // Handle beats
-                        int beatStart = note.IndexOf('{') + 1;
-                        int beatEnd = note.IndexOf('}');
-                        currentBeat = float.Parse(note.Substring(beatStart, beatEnd - beatStart));
-                    }
-                    else if (!string.IsNullOrEmpty(note))
-                    {
-                        // Handle lane notes
-                        string[] laneNotes = note.Split(',');
-
-                        foreach (var laneNote in laneNotes)
-                        {
-                            if (string.IsNullOrWhiteSpace(laneNote))
-                            {
-                                // Handle empty note explicitly
-                                notes.Add(new Note(-1, currentBeat)); // -1 indicates an empty lane
-                            }
-                            else if (int.TryParse(laneNote, out int lane))
-                            {
-                                notes.Add(new Note(lane, currentBeat));
-                            }
-                        }
-
-                    }
-                }
-                Debug.Log("notesArray:" + notesArray);
-
+                songTime = BGM.GetComponent<AudioSource>().time;
+                songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
+                int index = 0;
                 foreach (var note in notes)
                 {
-                    noteSpawned[note] = false;
-                }
-            }
-
-
-            void MoveNotes(List<GameObject> noteList, GameObject target)
-            {
-                for (int i = noteList.Count - 1; i >= 0; i--)
-                {
-                    if (noteList[i] != null && target != null)
+                    index++;
+                    float timeToSpawn = note.Time * secPerBeat * index;
+                    timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
+                    if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
                     {
-                        noteList[i].transform.position = Vector3.MoveTowards(noteList[i].transform.position, target.transform.position, speed * Time.deltaTime);
-                        JudgeTime.GetComponent<TextMeshProUGUI>().text = Mathf.Round(noteList[i].transform.position.y) + "/" + Mathf.Round(target.transform.position.y);
-                        // Destroy note if it reaches the target and remove it from the list
-                        if (Mathf.Round(noteList[i].transform.position.y) == Mathf.Round(target.transform.position.y))
-                        {
-                            Destroy(noteList[i]);
-                            noteList.RemoveAt(i);
-                            DisplayJudgeResult(Judge_Miss);
-
-                        }
+                        //Debug.Log(timeToSpawn);
+                        CreateNote(note.Lane);
+                        noteSpawned[note] = true;
                     }
                 }
             }
 
-            IEnumerator JudgeReset(GameObject judge)
+
+            if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
             {
-                yield return new WaitForSeconds(0.5f);
-                judge.SetActive(false);
+                //SceneManager.LoadScene("SongSelect");
             }
 
-            IEnumerator TestNote()
+            // Move all notes in the lists towards their targets
+            if (!isPause)
             {
-                for (; ; )
-                {
-                    yield return new WaitForSeconds(.5f);
-                    CreateNote(1);
-                    yield return new WaitForSeconds(.5f);
-                    CreateNote(2);
-                    yield return new WaitForSeconds(.5f);
-                    CreateNote(3);
-                    yield return new WaitForSeconds(.5f);
-                    CreateNote(4);
-                }
-
-
+                MoveNotes(_Note_1_List, TargetNote_1);
+                MoveNotes(_Note_2_List, TargetNote_2);
+                MoveNotes(_Note_3_List, TargetNote_3);
+                MoveNotes(_Note_4_List, TargetNote_4);
             }
 
-            void HandleTargetVisibility(KeyCode key, GameObject target)
+
+            // Handle input
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (Input.GetKey(key))
+                //SceneManager.LoadScene("SongSelect");
+                pause.SetActive(!pause.activeSelf);
+                isPause = !isPause;
+                if (isPause)
                 {
-                    target.SetActive(true);
+                    BGM.GetComponent<AudioSource>().Pause();
                 }
                 else
                 {
-                    target.SetActive(false);
+                    BGM.GetComponent<AudioSource>().UnPause();
                 }
+
             }
 
-            void CreateNote(int note)
+            HandleTargetVisibility(KeyCode.D, TargetNote_1);
+            HandleTargetVisibility(KeyCode.F, TargetNote_2);
+            HandleTargetVisibility(KeyCode.J, TargetNote_3);
+            HandleTargetVisibility(KeyCode.K, TargetNote_4);
+
+            // Instantiate notes on key press and calculate judgment
+            KeyCode[] keys = { KeyCode.D, KeyCode.F, KeyCode.J, KeyCode.K };
+
+            for (int i = 0; i < keys.Length; i++)
             {
-                //Debug.Log(note);
-                GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
-                GameObject newNote = null;
-
-                switch (note)
+                if (Input.GetKeyDown(keys[i]))
                 {
-                    case 1:
-                        newNote = Instantiate(Note_1);
-                        _Note_1_List.Add(newNote);
-                        _Note_1_Times.Add(Time.time); // Store the creation time of the note
-                        break;
-                    case 2:
-                        newNote = Instantiate(Note_2);
-                        _Note_2_List.Add(newNote);
-                        _Note_2_Times.Add(Time.time);
-                        break;
-                    case 3:
-                        newNote = Instantiate(Note_3);
-                        _Note_3_List.Add(newNote);
-                        _Note_3_Times.Add(Time.time);
-                        break;
-                    case 4:
-                        newNote = Instantiate(Note_4);
-                        _Note_4_List.Add(newNote);
-                        _Note_4_Times.Add(Time.time);
-                        break;
-                }
-
-                if (newNote != null)
-                {
-                    newNote.SetActive(true);
-                    newNote.transform.SetParent(Canvas.transform, false);
+                    HandleJudgment(i + 1);
                 }
             }
+        }
 
-            void HandleJudgment(int note)
+        IEnumerator StartSongPlaying()
+        {
+            yield return new WaitForSeconds(1f);
+            playing = true;
+            isPause = false;
+            BGM.GetComponent<AudioSource>().Play();
+        }
+
+        void ParseChart(string chartData)
+        {
+            int bpmStart = chartData.IndexOf('(') + 1;
+            int bpmEnd = chartData.IndexOf(')');
+            bpm = float.Parse(chartData.Substring(bpmStart, bpmEnd - bpmStart));
+
+            string noteData = chartData.Substring(bpmEnd + 1);
+            string[] notesArray = noteData.Split(',');
+
+            float currentBeat = 0f;
+
+            foreach (var note in notesArray)
             {
-                List<GameObject> currentNoteList = null;
-                List<float> currentNoteTimes = null;
-                GameObject target = null;
-
-                switch (note)
+                if (note.StartsWith("{"))
                 {
-                    case 1:
-                        currentNoteList = _Note_1_List;
-                        currentNoteTimes = _Note_1_Times;
-                        target = TargetNote_1;
-                        break;
-                    case 2:
-                        currentNoteList = _Note_2_List;
-                        currentNoteTimes = _Note_2_Times;
-                        target = TargetNote_2;
-                        break;
-                    case 3:
-                        currentNoteList = _Note_3_List;
-                        currentNoteTimes = _Note_3_Times;
-                        target = TargetNote_3;
-                        break;
-                    case 4:
-                        currentNoteList = _Note_4_List;
-                        currentNoteTimes = _Note_4_Times;
-                        target = TargetNote_4;
-                        break;
+                    // Handle beats
+                    int beatStart = note.IndexOf('{') + 1;
+                    int beatEnd = note.IndexOf('}');
+                    currentBeat = float.Parse(note.Substring(beatStart, beatEnd - beatStart));
                 }
-
-                if (currentNoteList != null && currentNoteList.Count > 0)
+                else if (!string.IsNullOrEmpty(note))
                 {
-                    GameObject noteObject = currentNoteList[0]; // Check the first note in the list
-                    float noteTime = currentNoteTimes[0];
-                    float timeDiff = Mathf.Abs(noteObject.transform.position.y - target.transform.position.y);
+                    // Handle lane notes
+                    string[] laneNotes = note.Split(',');
+
+                    foreach (var laneNote in laneNotes)
+                    {
+                        if (string.IsNullOrWhiteSpace(laneNote))
+                        {
+                            // Handle empty note explicitly
+                            notes.Add(new Note(-1, currentBeat)); // -1 indicates an empty lane
+                        }
+                        else if (int.TryParse(laneNote, out int lane))
+                        {
+                            notes.Add(new Note(lane, currentBeat));
+                        }
+                    }
+
+                }
+            }
+            Debug.Log("notesArray:" + notesArray);
+
+            foreach (var note in notes)
+            {
+                noteSpawned[note] = false;
+            }
+        }
 
 
-                    if (timeDiff <= perfectWindow * 2)
+        void MoveNotes(List<GameObject> noteList, GameObject target)
+        {
+            for (int i = noteList.Count - 1; i >= 0; i--)
+            {
+                if (noteList[i] != null && target != null)
+                {
+                    noteList[i].transform.position = Vector3.MoveTowards(noteList[i].transform.position, target.transform.position, speed * Time.deltaTime);
+                    JudgeTime.GetComponent<TextMeshProUGUI>().text = Mathf.Round(noteList[i].transform.position.y) + "/" + Mathf.Round(target.transform.position.y);
+                    // Destroy note if it reaches the target and remove it from the list
+                    if (Mathf.Round(noteList[i].transform.position.y) == Mathf.Round(target.transform.position.y))
                     {
-                        DisplayJudgeResult(Judge_Perfect);
-                    }
-                    else if (timeDiff <= perfectWindow)
-                    {
-                        DisplayJudgeResult(Judge_Perfect);
-                    }
-                    else if (timeDiff <= greatWindow * 2)
-                    {
-                        DisplayJudgeResult(Judge_Great);
-                    }
-                    else if (timeDiff <= greatWindow)
-                    {
-                        DisplayJudgeResult(Judge_Great);
-                    }
-                    else if (timeDiff <= missWindow * 2)
-                    {
+                        Destroy(noteList[i]);
+                        noteList.RemoveAt(i);
                         DisplayJudgeResult(Judge_Miss);
-                    }
-                    else if (timeDiff <= missWindow)
-                    {
-                        DisplayJudgeResult(Judge_Miss);
-                    }
-                    else
-                    {
-                        JudgeTime.GetComponent<TextMeshProUGUI>().text = timeDiff.ToString();
-                        return;
-                    }
 
+                    }
+                }
+            }
+        }
+
+        IEnumerator JudgeReset(GameObject judge)
+        {
+            yield return new WaitForSeconds(0.5f);
+            judge.SetActive(false);
+        }
+
+        IEnumerator TestNote()
+        {
+            for (; ; )
+            {
+                yield return new WaitForSeconds(.5f);
+                CreateNote(1);
+                yield return new WaitForSeconds(.5f);
+                CreateNote(2);
+                yield return new WaitForSeconds(.5f);
+                CreateNote(3);
+                yield return new WaitForSeconds(.5f);
+                CreateNote(4);
+            }
+
+
+        }
+
+        void HandleTargetVisibility(KeyCode key, GameObject target)
+        {
+            if (Input.GetKey(key))
+            {
+                target.SetActive(true);
+            }
+            else
+            {
+                target.SetActive(false);
+            }
+        }
+
+        void CreateNote(int note)
+        {
+            //Debug.Log(note);
+            GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
+            GameObject newNote = null;
+
+            switch (note)
+            {
+                case 1:
+                    newNote = Instantiate(Note_1);
+                    _Note_1_List.Add(newNote);
+                    _Note_1_Times.Add(Time.time); // Store the creation time of the note
+                    break;
+                case 2:
+                    newNote = Instantiate(Note_2);
+                    _Note_2_List.Add(newNote);
+                    _Note_2_Times.Add(Time.time);
+                    break;
+                case 3:
+                    newNote = Instantiate(Note_3);
+                    _Note_3_List.Add(newNote);
+                    _Note_3_Times.Add(Time.time);
+                    break;
+                case 4:
+                    newNote = Instantiate(Note_4);
+                    _Note_4_List.Add(newNote);
+                    _Note_4_Times.Add(Time.time);
+                    break;
+            }
+
+            if (newNote != null)
+            {
+                newNote.SetActive(true);
+                newNote.transform.SetParent(Canvas.transform, false);
+            }
+        }
+
+        void HandleJudgment(int note)
+        {
+            List<GameObject> currentNoteList = null;
+            List<float> currentNoteTimes = null;
+            GameObject target = null;
+
+            switch (note)
+            {
+                case 1:
+                    currentNoteList = _Note_1_List;
+                    currentNoteTimes = _Note_1_Times;
+                    target = TargetNote_1;
+                    break;
+                case 2:
+                    currentNoteList = _Note_2_List;
+                    currentNoteTimes = _Note_2_Times;
+                    target = TargetNote_2;
+                    break;
+                case 3:
+                    currentNoteList = _Note_3_List;
+                    currentNoteTimes = _Note_3_Times;
+                    target = TargetNote_3;
+                    break;
+                case 4:
+                    currentNoteList = _Note_4_List;
+                    currentNoteTimes = _Note_4_Times;
+                    target = TargetNote_4;
+                    break;
+            }
+
+            if (currentNoteList != null && currentNoteList.Count > 0)
+            {
+                GameObject noteObject = currentNoteList[0]; // Check the first note in the list
+                float noteTime = currentNoteTimes[0];
+                float timeDiff = Mathf.Abs(noteObject.transform.position.y - target.transform.position.y);
+
+
+                if (timeDiff <= perfectWindow * 2)
+                {
+                    DisplayJudgeResult(Judge_Perfect);
+                }
+                else if (timeDiff <= perfectWindow)
+                {
+                    DisplayJudgeResult(Judge_Perfect);
+                }
+                else if (timeDiff <= greatWindow * 2)
+                {
+                    DisplayJudgeResult(Judge_Great);
+                }
+                else if (timeDiff <= greatWindow)
+                {
+                    DisplayJudgeResult(Judge_Great);
+                }
+                else if (timeDiff <= missWindow * 2)
+                {
+                    DisplayJudgeResult(Judge_Miss);
+                }
+                else if (timeDiff <= missWindow)
+                {
+                    DisplayJudgeResult(Judge_Miss);
+                }
+                else
+                {
                     JudgeTime.GetComponent<TextMeshProUGUI>().text = timeDiff.ToString();
-
-                    // Remove note from list and destroy it
-                    Destroy(noteObject);
-                    currentNoteList.RemoveAt(0);
-                    currentNoteTimes.RemoveAt(0);
+                    return;
                 }
-            }
 
-            void DisplayJudgeResult(Sprite judgmentSprite)
+                JudgeTime.GetComponent<TextMeshProUGUI>().text = timeDiff.ToString();
+
+                // Remove note from list and destroy it
+                Destroy(noteObject);
+                currentNoteList.RemoveAt(0);
+                currentNoteTimes.RemoveAt(0);
+            }
+        }
+
+        void DisplayJudgeResult(Sprite judgmentSprite)
+        {
+            Judge.GetComponent<Image>().sprite = judgmentSprite;
+            Judge.SetActive(true);
+
+            // Reset the coroutine if it's already running
+            if (judgeResetCoroutine != null)
             {
-                Judge.GetComponent<Image>().sprite = judgmentSprite;
-                Judge.SetActive(true);
-
-                // Reset the coroutine if it's already running
-                if (judgeResetCoroutine != null)
-                {
-                    StopCoroutine(judgeResetCoroutine);
-                }
-
-                judgeResetCoroutine = StartCoroutine(JudgeReset(Judge));
+                StopCoroutine(judgeResetCoroutine);
             }
+
+            judgeResetCoroutine = StartCoroutine(JudgeReset(Judge));
+        }
 
         public void RemuseButton()
         {
