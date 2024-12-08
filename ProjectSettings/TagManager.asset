@@ -7,6 +7,7 @@ TagManager:
   - BGM
   - Canvas
   - songlist
+  - TagNote
   layers:
   - Default
   - TransparentFX
@@ -43,4 +44,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 2700277817
     locked: 0

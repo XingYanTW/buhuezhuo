@@ -142,8 +142,10 @@ namespace Game
 
         int countPerfect = 0, countGreat = 0, countMiss = 0, combo = 0;
         int totalNotes;
+        int score = 0;
+        const int maxScore = 1000000;
 
-        public GameObject countPerfectOBJ, countGreatOBJ, countMissOBJ, countComboOBJ;
+        public GameObject countPerfectOBJ, countGreatOBJ, countMissOBJ, countComboOBJ, scoreOBJ;
 
         List<Note> notes;
 
@@ -404,6 +406,7 @@ namespace Game
             countGreatOBJ.GetComponent<TextMeshProUGUI>().text = "Great: " + countGreat;
             countMissOBJ.GetComponent<TextMeshProUGUI>().text = "Miss: " + countMiss;
             countComboOBJ.GetComponent<TextMeshProUGUI>().text = "Combo: " + combo + "/" + totalNotes;
+            scoreOBJ.GetComponent<TextMeshProUGUI>().text = score.ToString("D7"); // 格式化分數為7位數
 
             if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
             {
@@ -521,6 +524,7 @@ namespace Game
         {
             //Debug.Log(note);
             GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
+            GameObject TagNote = GameObject.FindGameObjectWithTag("TagNote");
             GameObject newNote = null;
 
             switch (note)
@@ -550,7 +554,7 @@ namespace Game
             if (newNote != null)
             {
                 newNote.SetActive(true);
-                newNote.transform.SetParent(Canvas.transform, false);
+                newNote.transform.SetParent(TagNote.transform, false);
             }
         }
 
@@ -595,24 +599,28 @@ namespace Game
                     DisplayJudgeResult(Judge_Perfect);
                     countPerfect++;
                     combo++;
+                    score += Mathf.CeilToInt((float)maxScore / totalNotes); // Perfect score
                 }
                 else if (timeDiff <= perfectWindow)
                 {
                     DisplayJudgeResult(Judge_Perfect);
                     countPerfect++;
                     combo++;
+                    score += Mathf.CeilToInt((float)maxScore / totalNotes); // Perfect score
                 }
                 else if (timeDiff <= greatWindow * 2)
                 {
                     DisplayJudgeResult(Judge_Great);
                     countGreat++;
                     combo++;
+                    score += Mathf.CeilToInt((float)maxScore / totalNotes * 0.6f); // Great score
                 }
                 else if (timeDiff <= greatWindow)
                 {
                     DisplayJudgeResult(Judge_Great);
                     countGreat++;
                     combo++;
+                    score += Mathf.CeilToInt((float)maxScore / totalNotes * 0.6f); // Great score
                 }
                 else if (timeDiff <= missWindow * 2)
                 {
@@ -641,6 +649,12 @@ namespace Game
                 Destroy(noteObject);
                 currentNoteList.RemoveAt(0);
                 currentNoteTimes.RemoveAt(0);
+            }
+
+            // 確保分數不超過最大值
+            if (score > maxScore)
+            {
+                score = maxScore;
             }
         }
 
