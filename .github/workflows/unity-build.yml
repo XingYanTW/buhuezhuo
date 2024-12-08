@@ -28,8 +28,8 @@ jobs:
       uses: game-ci/unity-builder@v2
       with:
         projectPath: .
-        unityVersion: 2022.3.46f1 # Replace with your Unity version
-        targetPlatform: StandaloneWindows64 # Change to your target platform
+        unityVersion: 2022.3.4f1 # Corrected Unity version format
+        targetPlatform: StandaloneWindows64
         outputPath: build
 
     - name: Upload Build Artifact
