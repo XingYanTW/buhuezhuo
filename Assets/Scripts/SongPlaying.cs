@@ -217,7 +217,6 @@ namespace Game
             for (int i = 0; i < input.Length; i++, position++)
             {
                 char c = input[i];
-                Token token = null;
 
                 switch (c)
                 {
@@ -226,12 +225,12 @@ namespace Game
                             int endBpm = input.IndexOf(')', i);
                             if (endBpm == -1)
                             {
-                                warnings.Add(new ErrorPos("Unclosed BPM token", line, i, Math.Max(input.Length, 10)));
+                                warnings.Add(new ErrorPos("Unclosed BPM token", line, position, Math.Max(input.Length, 10)));
                                 break;
                             }
 
                             int len = endBpm - i;
-                            token = new Token(TokenType.BPM, input.Substring(i + 1, len - 1), line, i, len);
+                            tokens.Add(new Token(TokenType.BPM, input.Substring(i + 1, len - 1), line, position, len));
                             i = endBpm;
                             position += len;
                         }
@@ -242,27 +241,27 @@ namespace Game
                             int endBeats = input.IndexOf('}', i);
                             if (endBeats == -1)
                             {
-                                warnings.Add(new ErrorPos("Unclosed Beats token", line, i, Math.Max(input.Length, 10)));
+                                warnings.Add(new ErrorPos("Unclosed Beats token", line, position, Math.Max(input.Length, 10)));
                                 break;
                             }
 
                             int len = endBeats - i;
-                            token = new Token(TokenType.Beats, input.Substring(i + 1, len - 1), line, position, len);
+                            tokens.Add(new Token(TokenType.Beats, input.Substring(i + 1, len - 1), line, position, len));
                             i = endBeats;
                             position += len;
                         }
                         break;
 
                     case ',':
-                        token = new Token(TokenType.Rest, ",", line, position);
+                        tokens.Add(new Token(TokenType.Rest, ",", line, position));
                         break;
 
                     case '/':
-                        token = new Token(TokenType.Slash, "/", line, position);
+                        tokens.Add(new Token(TokenType.Slash, "/", line, position));
                         break;
 
                     case '\n':
-                        token = new Token(TokenType.NewLine, "\\n", line, position);
+                        tokens.Add(new Token(TokenType.NewLine, "\\n", line, position));
                         line++;
                         position = -1;
                         break;
@@ -272,7 +271,7 @@ namespace Game
                         string comment = endComment == -1
                             ? input[(i + 1)..]
                             : input.Substring(i + 1, endComment - i - 1);
-                        token = new Token(TokenType.Comment, comment, line, position);
+                        tokens.Add(new Token(TokenType.Comment, comment, line, position));
                         i = endComment == -1 ? input.Length : endComment - 1;
                         break;
 
@@ -281,17 +280,14 @@ namespace Game
 
                     default:
                         if (char.IsDigit(c))
-                            token = new Token(TokenType.Note, c.ToString(), line, position);
+                            tokens.Add(new Token(TokenType.Note, c.ToString(), line, position));
                         else
                             warnings.Add(new ErrorPos("Invalid character", line, position));
                         break;
                 }
-
-                if (token != null)
-                    tokens.Add(token);
             }
-            return tokens;
 
+            return tokens;
         }
 
         private List<Note> ParseTokens(List<Token> tokens, out List<ErrorPos> warnings)
@@ -304,7 +300,7 @@ namespace Game
             int beatsPerMeasure = 4;
             float currentTime = 0;
 
-            Token lastToken = null;
+            Token? lastToken = null;
 
             foreach (var token in tokens)
             {
@@ -315,11 +311,28 @@ namespace Game
                 switch (token.Type)
                 {
                     case TokenType.BPM: // (120)
-                        bpm = float.Parse(token.Value);
+                        if (float.TryParse(token.Value, out float bpmValue))
+                        {
+                            if (bpmValue < 0) warnings.Add(new ErrorPos("BPM cannot be negative", token.Line, token.Range));
+                            else if (bpmValue == 0) warnings.Add(new ErrorPos("BPM cannot be 0", token.Line, token.Range));
+                            else bpm = bpmValue;
+                        }
+                        else warnings.Add(new ErrorPos("Invalid BPM", token.Line, token.Range));
                         break;
 
                     case TokenType.Beats: // {<value>}
-                        beatsPerMeasure = int.Parse(token.Value);
+                        if (float.TryParse(token.Value, out float beatsPerMeasureValue))
+                        {
+                            if (beatsPerMeasureValue % 1 != 0)
+                                warnings.Add(new ErrorPos("Invalid beats per measure, must be an integer", token.Line, token.Range));
+                            else if (beatsPerMeasureValue < 1)
+                                warnings.Add(new ErrorPos("Invalid beats per measure, must be at least 1", token.Line, token.Range));
+                            else if (beatsPerMeasureValue == 0)
+                                warnings.Add(new ErrorPos("Invalid beats per measure, cannot be 0", token.Line, token.Range));
+                            else beatsPerMeasure = (int)beatsPerMeasureValue;
+                        }
+                        else
+                            warnings.Add(new ErrorPos("Invalid beats per measure", token.Line, token.Range));
                         break;
 
                     case TokenType.Slash: // /
@@ -332,18 +345,23 @@ namespace Game
                         break;
 
                     case TokenType.Note: // number
-                        int lane = int.Parse(token.Value);
-                        if (lane < 1 || lane > 4)
+                        if (int.TryParse(token.Value, out int lane))
+                        {
+                            if (lane < 1 || lane > 4)
+                                warnings.Add(new ErrorPos("Invalid note", token.Line, token.Range));
+                            if (!currentNotes.Add(lane))
+                                warnings.Add(new ErrorPos("Duplicate note", token.Line, token.Range));
+                            else notes.Add(new Note(lane, currentTime));
+                        }
+                        else
                             warnings.Add(new ErrorPos("Invalid note", token.Line, token.Range));
-                        if (!currentNotes.Add(lane))
-                            warnings.Add(new ErrorPos("Duplicate note", token.Line, token.Range));
-                        else notes.Add(new Note(lane, currentTime));
                         break;
 
                     default:
                         // Ignore other token types
                         break;
                 }
+
                 lastToken = token;
             }
 
