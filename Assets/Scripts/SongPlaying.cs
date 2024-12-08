@@ -135,9 +135,11 @@ namespace Game
 
         private float bpm;
         private float secPerBeat;
-        private List<Note> notes = new List<Note>();
+        //private List<Note> notes = new List<Note>();
         private float songTime = 0f;
-        private Dictionary<Note, bool> noteSpawned = new Dictionary<Note, bool>();
+        private readonly Dictionary<Note, bool> noteSpawned = new();
+
+        List<Note> notes;
 
         void Start()
         {
@@ -149,21 +151,25 @@ namespace Game
             BGM.GetComponent<AudioSource>().clip = _BGM;
             var ChartData = Resources.Load<TextAsset>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/chart");
             //Debug.Log(ChartData);
-            ParseChart(ChartData.ToString());
+            //ParseChart(ChartData.ToString());
             string chart = ChartData.ToString();
             secPerBeat = 60f / bpm;
             var tokens = LexicalAnalysis(chart, out var tokenWarnings);
             // foreach (var token in tokens)
-            //   Console.WriteLine(token);
+            //   Debug.Log(token);
             foreach (var warning in tokenWarnings)
                 PrintWarning(chart, warning);
 
-            var notes = ParseTokens(tokens, out var noteWarnings);
+            notes = ParseTokens(tokens, out var noteWarnings);
             foreach (var note in notes)
-                Console.WriteLine($"{note.Time}: {note.Lane}");
+                Debug.Log($"{note.Time}: {note.Lane}");
 
             foreach (var warning in noteWarnings)
                 PrintWarning(chart, warning);
+            foreach (var note in notes)
+            {
+                noteSpawned[note] = false;
+            }
             StartCoroutine(StartSongPlaying());
 
         }
@@ -185,8 +191,8 @@ namespace Game
             string warningMessage = $"{warning.Message}:\n";
             if (startPos != 0)
             {
-            warningMessage += "...";
-            errorStartOffset += 3;
+                warningMessage += "...";
+                errorStartOffset += 3;
             }
             warningMessage += lineStr[startPos..errorStartPos];
 
@@ -349,16 +355,19 @@ namespace Game
             if (!isPause)
             {
                 songTime = BGM.GetComponent<AudioSource>().time;
+                //Debug.Log("Current song time: " + songTime);
                 songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
                 int index = 0;
                 foreach (var note in notes)
                 {
+                    //Debug.Log("Note time: " + note.Time + ", Note lane: " + note.Lane);
                     index++;
-                    float timeToSpawn = note.Time * secPerBeat * index;
+                    float timeToSpawn = note.Time;
+                    //Debug.Log("Note index: " + index + ", Time to spawn: " + timeToSpawn);
                     timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
                     if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
                     {
-                        //Debug.Log(timeToSpawn);
+                        Debug.Log("Spawning note at lane: " + note.Lane);
                         CreateNote(note.Lane);
                         noteSpawned[note] = true;
                     }
@@ -423,7 +432,7 @@ namespace Game
             BGM.GetComponent<AudioSource>().Play();
         }
 
-        void ParseChart(string chartData)
+        /*void ParseChart(string chartData)
         {
             int bpmStart = chartData.IndexOf('(') + 1;
             int bpmEnd = chartData.IndexOf(')');
@@ -469,7 +478,7 @@ namespace Game
             {
                 noteSpawned[note] = false;
             }
-        }
+        }*/
 
 
         void MoveNotes(List<GameObject> noteList, GameObject target)
