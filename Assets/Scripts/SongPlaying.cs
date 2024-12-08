@@ -102,6 +102,7 @@ namespace Game
         //public Sprite Judge_Perfect, Judge_Perfect_Plus, Judge_Perfect_Minus;
         //public Sprite Judge_Great, Judge_Great_Plus, Judge_Great_Minus, Judge_Miss;
         public Sprite Judge_Perfect, Judge_Great, Judge_Good, Judge_Miss;
+        public GameObject JudgeAudio;
         public GameObject JudgeTime, Playing;
         public float speed = 1f; // Speed at which the note moves
 
@@ -139,6 +140,11 @@ namespace Game
         private float songTime = 0f;
         private readonly Dictionary<Note, bool> noteSpawned = new();
 
+        int countPerfect = 0, countGreat = 0, countMiss = 0, combo = 0;
+        int totalNotes;
+
+        public GameObject countPerfectOBJ, countGreatOBJ, countMissOBJ, countComboOBJ;
+
         List<Note> notes;
 
         void Start()
@@ -170,8 +176,9 @@ namespace Game
             {
                 noteSpawned[note] = false;
             }
-            StartCoroutine(StartSongPlaying());
 
+            totalNotes = notes.Count; // 計算總音符數量
+            StartCoroutine(StartSongPlaying());
         }
 
         static void PrintWarning(string input, ErrorPos warning)
@@ -392,6 +399,11 @@ namespace Game
                 }
             }
 
+            // Update the count of perfect, great, miss, and combo
+            countPerfectOBJ.GetComponent<TextMeshProUGUI>().text = "Perfect: " + countPerfect;
+            countGreatOBJ.GetComponent<TextMeshProUGUI>().text = "Great: " + countGreat;
+            countMissOBJ.GetComponent<TextMeshProUGUI>().text = "Miss: " + countMiss;
+            countComboOBJ.GetComponent<TextMeshProUGUI>().text = "Combo: " + combo + "/" + totalNotes;
 
             if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
             {
@@ -407,7 +419,6 @@ namespace Game
                 MoveNotes(_Note_4_List, TargetNote_4);
             }
 
-
             // Handle input
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -422,7 +433,6 @@ namespace Game
                 {
                     BGM.GetComponent<AudioSource>().UnPause();
                 }
-
             }
 
             HandleTargetVisibility(KeyCode.D, TargetNote_1);
@@ -450,54 +460,6 @@ namespace Game
             BGM.GetComponent<AudioSource>().Play();
         }
 
-        /*void ParseChart(string chartData)
-        {
-            int bpmStart = chartData.IndexOf('(') + 1;
-            int bpmEnd = chartData.IndexOf(')');
-            bpm = float.Parse(chartData.Substring(bpmStart, bpmEnd - bpmStart));
-
-            string noteData = chartData.Substring(bpmEnd + 1);
-            string[] notesArray = noteData.Split(',');
-
-            float currentBeat = 0f;
-
-            foreach (var note in notesArray)
-            {
-                if (note.StartsWith("{"))
-                {
-                    // Handle beats
-                    int beatStart = note.IndexOf('{') + 1;
-                    int beatEnd = note.IndexOf('}');
-                    currentBeat = float.Parse(note.Substring(beatStart, beatEnd - beatStart));
-                }
-                else if (!string.IsNullOrEmpty(note))
-                {
-                    // Handle lane notes
-                    string[] laneNotes = note.Split(',');
-
-                    foreach (var laneNote in laneNotes)
-                    {
-                        if (string.IsNullOrWhiteSpace(laneNote))
-                        {
-                            // Handle empty note explicitly
-                            notes.Add(new Note(-1, currentBeat)); // -1 indicates an empty lane
-                        }
-                        else if (int.TryParse(laneNote, out int lane))
-                        {
-                            notes.Add(new Note(lane, currentBeat));
-                        }
-                    }
-
-                }
-            }
-            Debug.Log("notesArray:" + notesArray);
-
-            foreach (var note in notes)
-            {
-                noteSpawned[note] = false;
-            }
-        }*/
-
 
         void MoveNotes(List<GameObject> noteList, GameObject target)
         {
@@ -513,7 +475,8 @@ namespace Game
                         Destroy(noteList[i]);
                         noteList.RemoveAt(i);
                         DisplayJudgeResult(Judge_Miss);
-
+                        countMiss++; // 增加 miss 計數
+                        combo = 0; // 重置 combo 計數
                     }
                 }
             }
@@ -627,30 +590,41 @@ namespace Game
                 float noteTime = currentNoteTimes[0];
                 float timeDiff = Mathf.Abs(noteObject.transform.position.y - target.transform.position.y);
 
-
                 if (timeDiff <= perfectWindow * 2)
                 {
                     DisplayJudgeResult(Judge_Perfect);
+                    countPerfect++;
+                    combo++;
                 }
                 else if (timeDiff <= perfectWindow)
                 {
                     DisplayJudgeResult(Judge_Perfect);
+                    countPerfect++;
+                    combo++;
                 }
                 else if (timeDiff <= greatWindow * 2)
                 {
                     DisplayJudgeResult(Judge_Great);
+                    countGreat++;
+                    combo++;
                 }
                 else if (timeDiff <= greatWindow)
                 {
                     DisplayJudgeResult(Judge_Great);
+                    countGreat++;
+                    combo++;
                 }
                 else if (timeDiff <= missWindow * 2)
                 {
                     DisplayJudgeResult(Judge_Miss);
+                    countMiss++;
+                    combo = 0; // Reset combo on miss
                 }
                 else if (timeDiff <= missWindow)
                 {
                     DisplayJudgeResult(Judge_Miss);
+                    countMiss++;
+                    combo = 0; // Reset combo on miss
                 }
                 else
                 {
@@ -659,6 +633,9 @@ namespace Game
                 }
 
                 JudgeTime.GetComponent<TextMeshProUGUI>().text = timeDiff.ToString();
+
+                // Play judge audio
+                JudgeAudio.GetComponent<AudioSource>().Play();
 
                 // Remove note from list and destroy it
                 Destroy(noteObject);
