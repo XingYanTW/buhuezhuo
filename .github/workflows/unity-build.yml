@@ -1,0 +1,39 @@
+name: Unity Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Cache Unity Editor
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/unity3d
+        key: unity-cache-${{ runner.os }}-${{ hashFiles('**/ProjectSettings/ProjectVersion.txt') }}
+        restore-keys: |
+          unity-cache-${{ runner.os }}-
+
+    - name: Build Unity Project
+      uses: game-ci/unity-builder@v2
+      with:
+        projectPath: .
+        unityVersion: 2022.3.46f1 # Replace with your Unity version
+        targetPlatform: StandaloneWindows64 # Change to your target platform
+        outputPath: build
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build
+        path: build/
