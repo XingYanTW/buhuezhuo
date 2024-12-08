@@ -24,23 +24,16 @@ jobs:
         restore-keys: |
           unity-cache-${{ runner.os }}-
 
-    - name: Install Unity
-      uses: game-ci/unity-installer@v3
-      with:
-        version: '2022.3.46f1' # Update with your Unity version
-
-    - name: Activate Unity License
-      uses: game-ci/unity-activate@v2
-      with:
-        unityLicense: ${{ secrets.UNITY_LICENSE }}
-
-    - name: Run Unity Build
+    - name: Build Unity Project
       uses: game-ci/unity-builder@v2
       with:
-        targetPlatform: StandaloneWindows64 # Change to your target platform (e.g., WebGL, Android, etc.)
+        projectPath: .
+        unityVersion: 2022.3.46f1 # Replace with your Unity version
+        targetPlatform: StandaloneWindows64 # Change to your target platform
+        outputPath: build
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v3
       with:
         name: Build
-        path: build/StandaloneWindows64 # Update path for your target platform
+        path: build/
