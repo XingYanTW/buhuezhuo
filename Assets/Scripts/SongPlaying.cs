@@ -185,8 +185,8 @@ namespace Game
             string warningMessage = $"{warning.Message}:\n";
             if (startPos != 0)
             {
-            warningMessage += "...";
-            errorStartOffset += 3;
+                warningMessage += "...";
+                errorStartOffset += 3;
             }
             warningMessage += lineStr[startPos..errorStartPos];
 
@@ -220,12 +220,12 @@ namespace Game
                             int endBpm = input.IndexOf(')', i);
                             if (endBpm == -1)
                             {
-                                warnings.Add(new ErrorPos("Unclosed BPM token", line, i, Math.Max(input.Length, 10)));
+                                warnings.Add(new ErrorPos("Unclosed BPM token", line, position, Math.Max(input.Length, 10)));
                                 break;
                             }
 
                             int len = endBpm - i;
-                            token = new Token(TokenType.BPM, input.Substring(i + 1, len - 1), line, i, len);
+                            token = new Token(TokenType.BPM, input.Substring(i + 1, len - 1), line, position, len);
                             i = endBpm;
                             position += len;
                         }
@@ -236,7 +236,7 @@ namespace Game
                             int endBeats = input.IndexOf('}', i);
                             if (endBeats == -1)
                             {
-                                warnings.Add(new ErrorPos("Unclosed Beats token", line, i, Math.Max(input.Length, 10)));
+                                warnings.Add(new ErrorPos("Unclosed Beats token", line, position, Math.Max(input.Length, 10)));
                                 break;
                             }
 
