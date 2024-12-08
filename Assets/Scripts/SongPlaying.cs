@@ -280,8 +280,8 @@ namespace Game
                         break;
                 }
             }
-            return tokens;
 
+            return tokens;
         }
 
         private List<Note> ParseTokens(List<Token> tokens, out List<ErrorPos> warnings)
@@ -355,7 +355,11 @@ namespace Game
                         // Ignore other token types
                         break;
                 }
+
+                lastToken = token;
             }
+
+            return notes;
         }
 
         void Update()
