@@ -341,7 +341,7 @@ namespace Game
                         break;
 
                     case TokenType.Rest: // ,
-                        currentTime += 60f / bpm * (beatsPerMeasure / 4f);
+                        currentTime += 60f / bpm * (4f / beatsPerMeasure);
                         break;
 
                     case TokenType.Note: // number
@@ -690,7 +690,7 @@ namespace Game
 
         public void RestartButton()
         {
-
+            SceneManager.LoadScene("SongPlaying");
         }
 
         public void ExitButton()
