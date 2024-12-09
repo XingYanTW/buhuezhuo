@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 322902}
   - component: {fileID: 322903}
+  - component: {fileID: 322904}
   m_Layer: 5
   m_Name: Loading
   m_TagString: Canvas
@@ -151,8 +152,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 62841775}
   - {fileID: 922797440}
+  - {fileID: 62841775}
   - {fileID: 1637880962}
   m_Father: {fileID: 1338990713}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -173,6 +174,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff74653af000231459b151ef1d7fcf42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &322904
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322901}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 589e8aaf0569e8c40b21e34499c8cab7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &62841774
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,8 +736,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LoadingScreen: {fileID: 322901}
-  SongName: {fileID: 0}
-  SongJacket: {fileID: 0}
+  SongName: {fileID: 1637880961}
+  SongJacket: {fileID: 62841774}
 --- !u!1 &444757593
 GameObject:
   m_ObjectHideFlags: 0
