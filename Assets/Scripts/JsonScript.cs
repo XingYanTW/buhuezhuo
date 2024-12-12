@@ -1,23 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.IO;
 using UnityEngine;
-namespace System
+
+namespace Assets.Scripts
 {
     public class JsonScript : MonoBehaviour
     {
-
-        public static Options option = new Options();
+        public static Options Option = new Options();
 
         // Start is called before the first frame update
-        void Awake()
+        private void Awake()
         {
-            //option.audioVolume = 0.7f;
-            //string _json = JsonUtility.ToJson(option);
-            //Debug.Log(_json);
-            //Debug.Log(Application.persistentDataPath + "/config.json");
-            //File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
-            //JsonUtility.FromJson(File.ReadAllText(Application.persistentDataPath + "/config.json"));
+            Option.AudioVolume = 0.7f;
+            string _json = JsonUtility.ToJson(Option);
+            Debug.Log(_json);
+            Debug.Log(Application.persistentDataPath + "/config.json");
+            File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
+            Option = JsonUtility.FromJson<Options>(File.ReadAllText(Application.persistentDataPath + "/config.json"));
         }
 
         // Update is called once per frame
@@ -26,19 +25,17 @@ namespace System
 
         //}
 
-        /*public static void SaveJsonFile()
+        public static void SaveJsonFile()
         {
-            string _json = JsonUtility.ToJson(option);
+            string _json = JsonUtility.ToJson(Option);
             Debug.Log(_json);
             File.WriteAllText(Application.persistentDataPath + "/config.json", _json);
-        }*/
+        }
     }
-    [System.Serializable]
+
+    [Serializable]
     public class Options
     {
-        public float audioVolume { set; get; }
+        public float AudioVolume { set; get; }
     }
-
 }
-
-
