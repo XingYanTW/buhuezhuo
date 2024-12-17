@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using System.IO;
 
 public class SongSelectScript : MonoBehaviour
 {
@@ -17,10 +18,14 @@ public class SongSelectScript : MonoBehaviour
 
     private PlayButton playButton;
 
-    public string songName;
+    private static string songName;
+
+    private string saveFilePath;
 
     void Start()
     {
+        saveFilePath = Path.Combine(Application.persistentDataPath, "lastSelectedSong.json");
+
         string jsonText = jsonFile.text;
         Song song = JsonUtility.FromJson<Song>(jsonText);
         GameObject Canvas = GameObject.FindGameObjectWithTag("Canvas");
@@ -69,7 +74,10 @@ public class SongSelectScript : MonoBehaviour
                     songobj.GetComponent<SongSelectScript>().Jacket = Jacket;*/
 
                     Button btn = songobj.GetComponent<Button>();
-                    btn.onClick.AddListener(() => UpdateSong(songs.id, songs.name, songs.artist));
+                    btn.onClick.AddListener(() => {
+                        UpdateSong(songs.id, songs.name, songs.artist);
+                        SaveLastSelectedSong(songs.id, songs.name, songs.artist);
+                    });
 
                 }
 
@@ -78,6 +86,12 @@ public class SongSelectScript : MonoBehaviour
 
         }
 
+        LoadLastSelectedSong();
+    }
+
+    public string GetSongName()
+    {
+        return songName;
     }
 
     // Update is called once per frame
@@ -128,8 +142,28 @@ public class SongSelectScript : MonoBehaviour
         yield break;
     }
 
+    void SaveLastSelectedSong(string songID, string songName, string songArtist)
+    {
+        LastSelectedSong lastSelectedSong = new LastSelectedSong
+        {
+            SongID = songID,
+            SongName = songName,
+            SongArtist = songArtist
+        };
 
+        string json = JsonUtility.ToJson(lastSelectedSong);
+        File.WriteAllText(saveFilePath, json);
+    }
 
+    void LoadLastSelectedSong()
+    {
+        if (File.Exists(saveFilePath))
+        {
+            string json = File.ReadAllText(saveFilePath);
+            LastSelectedSong lastSelectedSong = JsonUtility.FromJson<LastSelectedSong>(json);
+            UpdateSong(lastSelectedSong.SongID, lastSelectedSong.SongName, lastSelectedSong.SongArtist);
+        }
+    }
 }
 
 [System.Serializable]
@@ -152,4 +186,12 @@ public class Level
 {
     public int diff;
     public int level;
+}
+
+[System.Serializable]
+public class LastSelectedSong
+{
+    public string SongID;
+    public string SongName;
+    public string SongArtist;
 }
