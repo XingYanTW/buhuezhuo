@@ -10,7 +10,7 @@ namespace Option
 {
     public class BackScript : MonoBehaviour
     {
-        public Options option = new Options();
+        //public Options option = new Options();
         public void click()
         {
             SceneManager.LoadScene("Main");
