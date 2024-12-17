@@ -153,7 +153,7 @@ namespace Game
         void Start()
         {
             playing = false;
-            Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<PlayButton>().GetPlaySong();
+            Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<SongSelectScript>().GetSongName();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
 
             BGM.GetComponent<AudioSource>().clip = _BGM;

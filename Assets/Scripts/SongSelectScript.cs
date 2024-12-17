@@ -15,6 +15,9 @@ public class SongSelectScript : MonoBehaviour
     public TextMeshProUGUI nameobj, artistobj;
     public AudioSource preview;
 
+    private PlayButton playButton;
+
+    public string songName;
 
     void Start()
     {
@@ -81,16 +84,23 @@ public class SongSelectScript : MonoBehaviour
     void Update()
     {
     }
-    void UpdateSong(string SongID, string SongName, string SongArtist){
-        gameObject.AddComponent<PlayButton>().SetPlaySong(SongID);
+
+    void UpdateSong(string SongID, string SongName, string SongArtist)
+    {
+        if (playButton == null)
+        {
+            playButton = gameObject.AddComponent<PlayButton>();
+        }
+        playButton.SetPlaySong(SongID);
         //Debug.Log(new PlayButton().GetPlaySong());
-        var _jacket = Resources.Load<Sprite>("Songs/"+SongID+"/Jacket");
+        var _jacket = Resources.Load<Sprite>("Songs/" + SongID + "/Jacket");
         Jacket.GetComponent<Image>().sprite = _jacket;
         Debug.Log(_jacket);
-        Debug.Log("Songs/"+SongID+"/Jacket");
+        Debug.Log("Songs/" + SongID + "/Jacket");
         nameobj.GetComponent<TextMeshProUGUI>().text = SongName;
         artistobj.GetComponent<TextMeshProUGUI>().text = SongArtist;
-        var audioClip = Resources.Load<AudioClip>("Songs/"+SongID+"/preview");
+        songName = SongName;
+        var audioClip = Resources.Load<AudioClip>("Songs/" + SongID + "/preview");
         preview.clip = audioClip;
         preview.volume = 1;
         preview.Play();
@@ -98,15 +108,18 @@ public class SongSelectScript : MonoBehaviour
         StartCoroutine(Fade(false, preview, audioClip.length, 0f));
     }
 
-    public IEnumerator Fade(bool fadeIn, AudioSource source, float duration, float targetVolume){
-        if (!fadeIn){
+    public IEnumerator Fade(bool fadeIn, AudioSource source, float duration, float targetVolume)
+    {
+        if (!fadeIn)
+        {
             double lengthOfSource = (double)source.clip.samples / source.clip.frequency;
-            yield return new WaitForSecondsRealtime((float)(lengthOfSource-duration));
+            yield return new WaitForSecondsRealtime((float)(lengthOfSource - duration));
         }
 
         float time = 0f;
         float startVol = source.volume;
-        while (time < duration){
+        while (time < duration)
+        {
             time += Time.deltaTime;
             source.volume = Mathf.Lerp(startVol, targetVolume, time / duration);
             yield return null;
@@ -114,13 +127,10 @@ public class SongSelectScript : MonoBehaviour
 
         yield break;
     }
-    
-
 
 
 
 }
-
 
 [System.Serializable]
 public class Song

@@ -1,7 +1,7 @@
 {
     "songs": [
         {
-            "id": "全世界共通リズム感テスト",
+            "id": "metronome",
             "name": "全世界共通リズム感テスト",
             "artist": "☆リズムに合わせてボタンを叩き達成率を競うゲームです☆",
             "levels": [
@@ -21,7 +21,7 @@
         },
         {
             "id": "raputa",
-            "name": "raputa(Unplayable)",
+            "name": "raputa",
             "artist": "Sasakure.UK x TJ.Hengneil",
             "levels": [
                 {
@@ -39,7 +39,7 @@
             ]
         },
         {
-            "id": "Designant",
+            "id": "designant",
             "name": "Designant.",
             "artist": "Designant",
             "levels": [
@@ -58,7 +58,7 @@
             ]
         },
         {
-            "id": "メズマライザー",
+            "id": "mesmerizer",
             "name": "メズマライザー.",
             "artist": "Satsuki",
             "levels": [
