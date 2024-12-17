@@ -17,7 +17,14 @@ public class PlayButton : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        loadingScreenAnimator = LoadingScreen.GetComponent<Animator>();
+        if (LoadingScreen != null)
+        {
+            loadingScreenAnimator = LoadingScreen.GetComponent<Animator>();
+        }
+        else
+        {
+            Debug.LogError("LoadingScreen is not assigned in the inspector.");
+        }
     }
 
     // Update is called once per frame
