@@ -130,6 +130,9 @@ namespace Game
 
         Coroutine judgeResetCoroutine;
 
+        public GameObject result;
+        public GameObject result_Score, result_Perfect, result_Great, result_Miss, result_Combo, result_Rank, result_APFC;
+
         private Boolean playing;
         private Boolean isPause = true;
 
@@ -144,6 +147,8 @@ namespace Game
         int totalNotes;
         int score = 0;
         const int maxScore = 1000000;
+
+        int maxcombo = 0;
         int displayedScore = 0; // 用於顯示動畫的分數
 
         public GameObject countPerfectOBJ, countGreatOBJ, countMissOBJ, countComboOBJ, scoreOBJ;
@@ -158,6 +163,11 @@ namespace Game
 
             BGM.GetComponent<AudioSource>().clip = _BGM;
             var ChartData = Resources.Load<TextAsset>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/chart");
+            if (ChartData == null)
+            {
+                SceneManager.LoadScene("SongSelect");
+                return;
+            }
             string chart = ChartData.ToString();
             secPerBeat = 60f / bpm;
             var tokens = LexicalAnalysis(chart, out var tokenWarnings);
@@ -397,6 +407,82 @@ namespace Game
                 }
             }
 
+            //max combo
+            if (combo > maxcombo)
+            {
+                maxcombo = combo;
+            }
+
+
+            if (BGM.GetComponent<AudioSource>().time >= BGM.GetComponent<AudioSource>().clip.length)
+            {
+                //result menu
+                result.SetActive(true);
+                result_Score.GetComponent<TextMeshProUGUI>().text = score.ToString();
+                result_Perfect.GetComponent<TextMeshProUGUI>().text = countPerfect.ToString();
+                result_Great.GetComponent<TextMeshProUGUI>().text = countGreat.ToString();
+                result_Miss.GetComponent<TextMeshProUGUI>().text = countMiss.ToString();
+                result_Combo.GetComponent<TextMeshProUGUI>().text = "Combo: " + maxcombo.ToString();
+                //use score to define rank, SSS+: 1000000, SSS: 990000, SS: 980000, S: 970000, A: 950000, B: 900000, C: 800000, D: 700000, F: 600000
+                //Color: SSS+:(256,128,0), SSS:yellow, SS:blue, S:green, A:purple, B:orange, C:red, D:gray, F:black
+                if (score == 1000000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "SSS+";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = new Color(1f, 0.5f, 0f);
+                }
+                else if (score >= 990000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "SSS";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+                }
+                else if (score >= 980000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "SS";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+                }
+                else if (score >= 970000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "S";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+                }
+                else if (score >= 950000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "A";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.green;
+                }
+                else if (score >= 900000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "B";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.blue;
+                }
+                else if (score >= 800000)
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "C";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.red;
+                }
+                else
+                {
+                    result_Rank.GetComponent<TextMeshProUGUI>().text = "D";
+                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.red;
+                }
+                //APFC
+                if (countGreat == 0 && countMiss == 0)
+                {
+                    result_APFC.GetComponent<TextMeshProUGUI>().color = new Color(1f, 0.5f, 0f);
+                    result_APFC.GetComponent<TextMeshProUGUI>().text = "AP";
+                }
+                else if (countMiss == 0)
+                {
+                    result_APFC.GetComponent<TextMeshProUGUI>().color = Color.green;
+                    result_APFC.GetComponent<TextMeshProUGUI>().text = "FC";
+                }
+                else
+                {
+                    result_APFC.GetComponent<TextMeshProUGUI>().text = "";
+                }
+
+            }
+
             // Update the count of perfect, great, miss, combo, and score
             countPerfectOBJ.GetComponent<TextMeshProUGUI>().text = "Perfect: " + countPerfect;
             countGreatOBJ.GetComponent<TextMeshProUGUI>().text = "Great: " + countGreat;
@@ -495,6 +581,7 @@ namespace Game
                         DisplayJudgeResult(Judge_Miss);
                         countMiss++; // 增加 miss 計數
                         combo = 0; // 重置 combo 計數
+
                     }
                 }
             }
