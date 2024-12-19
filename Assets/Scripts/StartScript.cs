@@ -13,6 +13,13 @@ namespace Main
         public Image notify;
         public TextMeshProUGUI head;
         public TextMeshProUGUI body;
+
+        public void Start()
+        {
+            KeyManager keyManager = new KeyManager();
+            keyManager.initkey();
+        }
+
         public void Click()
         {
             /*head.text = "該帳號沒有登出";

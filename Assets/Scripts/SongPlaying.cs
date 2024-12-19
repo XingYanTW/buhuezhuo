@@ -155,9 +155,13 @@ namespace Game
 
         List<Note> notes;
 
+        private KeyCode[] keys;
+
         void Start()
         {
             playing = false;
+            KeyManager keyManager = new KeyManager();
+            keys = keyManager.GetKeyCodes();
             Playing.GetComponent<TextMeshProUGUI>().text = gameObject.AddComponent<SongSelectScript>().GetSongName();
             AudioClip _BGM = Resources.Load<AudioClip>("Songs/" + gameObject.AddComponent<PlayButton>().GetPlaySong() + "/track");
 
@@ -545,7 +549,6 @@ namespace Game
             HandleTargetVisibility(KeyCode.K, TargetNote_4);
 
             // Instantiate notes on key press and calculate judgment
-            KeyCode[] keys = { KeyCode.D, KeyCode.F, KeyCode.J, KeyCode.K };
 
             for (int i = 0; i < keys.Length; i++)
             {
