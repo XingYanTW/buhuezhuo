@@ -62,8 +62,10 @@ public class SongSelectScript : MonoBehaviour
                     //Debug.Log(index);
                     songobj.SetActive(true);
                     songobj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = level.level.ToString();
-                    songobj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = songs.artist;
-                    songobj.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = songs.name;
+                    songobj.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = songs.name;
+                    songobj.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = songs.artist;
+                    StartCoroutine(CheckAndStartMarquee(songobj.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>()));
+                    StartCoroutine(CheckAndStartMarquee(songobj.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>()));
                     //Debug.Log(songobj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text);
                     //Debug.Log(songobj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
                     //Debug.Log(songobj.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text);
@@ -74,7 +76,8 @@ public class SongSelectScript : MonoBehaviour
                     songobj.GetComponent<SongSelectScript>().Jacket = Jacket;*/
 
                     Button btn = songobj.GetComponent<Button>();
-                    btn.onClick.AddListener(() => {
+                    btn.onClick.AddListener(() =>
+                    {
                         UpdateSong(songs.id, songs.name, songs.artist);
                         SaveLastSelectedSong(songs.id, songs.name, songs.artist);
                     });
@@ -106,11 +109,8 @@ public class SongSelectScript : MonoBehaviour
             playButton = gameObject.AddComponent<PlayButton>();
         }
         playButton.SetPlaySong(SongID);
-        //Debug.Log(new PlayButton().GetPlaySong());
         var _jacket = Resources.Load<Sprite>("Songs/" + SongID + "/Jacket");
         Jacket.GetComponent<Image>().sprite = _jacket;
-        Debug.Log(_jacket);
-        Debug.Log("Songs/" + SongID + "/Jacket");
         nameobj.GetComponent<TextMeshProUGUI>().text = SongName;
         artistobj.GetComponent<TextMeshProUGUI>().text = SongArtist;
         songName = SongName;
@@ -120,6 +120,48 @@ public class SongSelectScript : MonoBehaviour
         preview.Play();
         StartCoroutine(Fade(true, preview, audioClip.length, 1f));
         StartCoroutine(Fade(false, preview, audioClip.length, 0f));
+
+        // 檢查並啟動跑馬燈效果
+        StartCoroutine(CheckAndStartMarquee(nameobj.GetComponent<TextMeshProUGUI>()));
+        StartCoroutine(CheckAndStartMarquee(artistobj.GetComponent<TextMeshProUGUI>()));
+    }
+
+    IEnumerator CheckAndStartMarquee(TextMeshProUGUI textObj)
+    {
+        yield return null; // 等待一幀以確保文字已經更新
+
+        if (textObj.preferredWidth > textObj.rectTransform.rect.width)
+        {
+            StartCoroutine(MarqueeText(textObj));
+        }
+    }
+
+    IEnumerator MarqueeText(TextMeshProUGUI textObj)
+    {
+        textObj.overflowMode = TextOverflowModes.Overflow; // 設置 overflowMode 為 Overflow
+
+        float scrollSpeed = 50f; // 跑馬燈速度
+        Vector3 startPos = textObj.rectTransform.localPosition + new Vector3(textObj.rectTransform.rect.width, 0, 0);
+        Vector3 endPos = textObj.rectTransform.localPosition - new Vector3(textObj.rectTransform.rect.width, 0, 0);
+
+        while (true)
+        {
+            // 檢查文字寬度是否超過 GameObject 寬度
+            if (textObj.preferredWidth <= textObj.rectTransform.rect.width)
+            {
+                textObj.rectTransform.localPosition = new Vector3(0, textObj.rectTransform.localPosition.y, textObj.rectTransform.localPosition.z);
+                yield break; // 停止協程
+            }
+
+            float elapsedTime = 0f;
+            while (elapsedTime < (textObj.preferredWidth / scrollSpeed))
+            {
+                textObj.rectTransform.localPosition = Vector3.Lerp(startPos, endPos, elapsedTime / (textObj.preferredWidth / scrollSpeed));
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            textObj.rectTransform.localPosition = startPos;
+        }
     }
 
     public IEnumerator Fade(bool fadeIn, AudioSource source, float duration, float targetVolume)
