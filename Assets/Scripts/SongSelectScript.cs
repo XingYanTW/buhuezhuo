@@ -61,11 +61,11 @@ public class SongSelectScript : MonoBehaviour
                     rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, rt.anchoredPosition.y - (index * 90));
                     //Debug.Log(index);
                     songobj.SetActive(true);
-                    songobj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = level.level.ToString();
-                    songobj.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = songs.name;
-                    songobj.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = songs.artist;
-                    StartCoroutine(CheckAndStartMarquee(songobj.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>()));
-                    StartCoroutine(CheckAndStartMarquee(songobj.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>()));
+                    songobj.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = level.level.ToString();
+                    songobj.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = songs.name;
+                    songobj.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = songs.artist;
+                    StartCoroutine(CheckAndStartMarquee(songobj.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>()));
+                    StartCoroutine(CheckAndStartMarquee(songobj.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>()));
                     //Debug.Log(songobj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text);
                     //Debug.Log(songobj.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text);
                     //Debug.Log(songobj.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text);
@@ -227,7 +227,7 @@ public class Songs
 public class Level
 {
     public int diff;
-    public int level;
+    public string level;
 }
 
 [System.Serializable]

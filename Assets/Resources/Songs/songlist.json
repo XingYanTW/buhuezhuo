@@ -75,6 +75,25 @@
                     "level": 12
                 }
             ]
+        },
+        {
+            "id": "pandora",
+            "name": "PANDORA PARADOXXX",
+            "artist": "sakuzyo",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 8
+                },
+                {
+                    "diff": 1,
+                    "level": 10
+                },
+                {
+                    "diff": 2,
+                    "level": "舞"
+                }
+            ]
         }
     ]
 }
