@@ -77,6 +77,25 @@
             ]
         },
         {
+            "id": "シニカル・シニカル",
+            "name": "シニカル・シニカル",
+            "artist": "吐息.",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 8
+                },
+                {
+                    "diff": 1,
+                    "level": 10
+                },
+                {
+                    "diff": 2,
+                    "level": 12
+                }
+            ]
+        },
+        {
             "id": "pandora",
             "name": "PANDORA PARADOXXX",
             "artist": "sakuzyo",
@@ -92,6 +111,44 @@
                 {
                     "diff": 2,
                     "level": "舞"
+                }
+            ]
+        } ,
+        {
+            "id": "ENDYMION",
+            "name": "ENDYMION",
+            "artist": "fallen shepherd ft. RabbiTon Strings",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 8
+                },
+                {
+                    "diff": 1,
+                    "level": 10
+                },
+                {
+                    "diff": 2,
+                    "level": "招"
+                }
+            ]
+        },
+        {
+            "id": "まっすぐ→→→ストリーム！",
+            "name": "まっすぐ→→→ストリーム！",
+            "artist": "曲：本多友紀（Arte Refact） 歌：日向 千夏（CV：岡咲 美保）",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 8
+                },
+                {
+                    "diff": 1,
+                    "level": 10
+                },
+                {
+                    "diff": 2,
+                    "level": "狂"
                 }
             ]
         }
