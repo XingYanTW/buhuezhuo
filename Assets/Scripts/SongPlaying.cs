@@ -133,8 +133,8 @@ namespace Game
         public GameObject result;
         public GameObject result_Score, result_Perfect, result_Great, result_Miss, result_Combo, result_Rank, result_APFC;
 
-        private Boolean playing;
-        private Boolean isPause = true;
+        private bool playing = false;
+        private bool isPause = true;
 
 
         private float bpm;
@@ -180,7 +180,7 @@ namespace Game
 
             notes = ParseTokens(tokens, out var noteWarnings);
             foreach (var note in notes)
-                Debug.Log($"{note.Time}: {note.Lane}");
+                Debug.Log($"{note.Time - 1.6f}: {note.Lane}");
 
             foreach (var warning in noteWarnings)
                 PrintWarning(chart, warning);
@@ -315,9 +315,9 @@ namespace Game
             List<Note> notes = new List<Note>();
             HashSet<int> currentNotes = new HashSet<int>();
 
-            float bpm = 120;
+            decimal bpm = 120;
             int beatsPerMeasure = 4;
-            float currentTime = 0;
+            decimal currentTime = 1.6m;
 
             Token? lastToken = null;
 
@@ -330,7 +330,7 @@ namespace Game
                 switch (token.Type)
                 {
                     case TokenType.BPM: // (120)
-                        if (float.TryParse(token.Value, out float bpmValue))
+                        if (decimal.TryParse(token.Value, out decimal bpmValue))
                         {
                             if (bpmValue < 0) warnings.Add(new ErrorPos("BPM cannot be negative", token.Line, token.Range));
                             else if (bpmValue == 0) warnings.Add(new ErrorPos("BPM cannot be 0", token.Line, token.Range));
@@ -340,7 +340,7 @@ namespace Game
                         break;
 
                     case TokenType.Beats: // {<value>}
-                        if (float.TryParse(token.Value, out float beatsPerMeasureValue))
+                        if (decimal.TryParse(token.Value, out decimal beatsPerMeasureValue))
                         {
                             if (beatsPerMeasureValue % 1 != 0)
                                 warnings.Add(new ErrorPos("Invalid beats per measure, must be an integer", token.Line, token.Range));
@@ -360,7 +360,7 @@ namespace Game
                         break;
 
                     case TokenType.Rest: // ,
-                        currentTime += 60f / bpm * (4f / beatsPerMeasure);
+                        currentTime += 60m / bpm * (4m / beatsPerMeasure);
                         break;
 
                     case TokenType.Note: // number
@@ -370,7 +370,7 @@ namespace Game
                                 warnings.Add(new ErrorPos("Invalid note", token.Line, token.Range));
                             if (!currentNotes.Add(lane))
                                 warnings.Add(new ErrorPos("Duplicate note", token.Line, token.Range));
-                            else notes.Add(new Note(lane, currentTime));
+                            else notes.Add(new Note(lane, (float)currentTime));
                         }
                         else
                             warnings.Add(new ErrorPos("Invalid note", token.Line, token.Range));
@@ -562,9 +562,9 @@ namespace Game
         IEnumerator StartSongPlaying()
         {
             yield return new WaitForSeconds(1f);
+            BGM.GetComponent<AudioSource>().Play();
             playing = true;
             isPause = false;
-            BGM.GetComponent<AudioSource>().Play();
         }
 
 
