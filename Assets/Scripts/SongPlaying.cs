@@ -389,120 +389,160 @@ namespace Game
 
         void Update()
         {
+            UpdateMaxCombo();
+            CheckSongEnd();
+            UpdateScoreDisplay();
+            HandleInput();
+            HandleTargetVisibility(KeyCode.D, TargetNote_1);
+            HandleTargetVisibility(KeyCode.F, TargetNote_2);
+            HandleTargetVisibility(KeyCode.J, TargetNote_3);
+            HandleTargetVisibility(KeyCode.K, TargetNote_4);
+            HandleKeyPress();
+        }
+
+        void FixedUpdate()
+        {
             if (!isPause)
             {
-                songTime = BGM.GetComponent<AudioSource>().time;
-                //Debug.Log("Current song time: " + songTime);
-                songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
-                int index = 0;
-                foreach (var note in notes)
+                UpdateSongTime();
+                UpdateNotes();
+            }
+        }
+
+        void UpdateSongTime()
+        {
+            songTime = BGM.GetComponent<AudioSource>().time;
+            songTimeOBJ.GetComponent<TextMeshProUGUI>().text = songTime.ToString();
+        }
+
+        void UpdateNotes()
+        {
+            int index = 0;
+            foreach (var note in notes)
+            {
+                index++;
+                float timeToSpawn = note.Time;
+                timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
+                if (songTime >= timeToSpawn - 2f && !noteSpawned[note])
                 {
-                    //Debug.Log("Note time: " + note.Time + ", Note lane: " + note.Lane);
-                    index++;
-                    float timeToSpawn = note.Time;
-                    //Debug.Log("Note index: " + index + ", Time to spawn: " + timeToSpawn);
-                    timeToSpawnOBJ.GetComponent<TextMeshProUGUI>().text = timeToSpawn.ToString();
-                    if (songTime >= timeToSpawn - 2f && noteSpawned[note] == false)
-                    {
-                        Debug.Log("Spawning note at lane: " + note.Lane);
-                        CreateNote(note.Lane);
-                        noteSpawned[note] = true;
-                    }
+                    Debug.Log("Spawning note at lane: " + note.Lane);
+                    CreateNote(note.Lane);
+                    noteSpawned[note] = true;
+                }
+                else if (songTime >= timeToSpawn && !noteSpawned[note])
+                {
+                    // 容錯機制，確保音符能夠準時生成
+                    Debug.LogWarning("Late spawning note at lane: " + note.Lane);
+                    CreateNote(note.Lane);
+                    noteSpawned[note] = true;
                 }
             }
 
-            //max combo
+            MoveNotes(_Note_1_List, TargetNote_1);
+            MoveNotes(_Note_2_List, TargetNote_2);
+            MoveNotes(_Note_3_List, TargetNote_3);
+            MoveNotes(_Note_4_List, TargetNote_4);
+        }
+
+        void UpdateMaxCombo()
+        {
             if (combo > maxcombo)
             {
                 maxcombo = combo;
             }
+        }
 
-
+        void CheckSongEnd()
+        {
             if (BGM.GetComponent<AudioSource>().time >= BGM.GetComponent<AudioSource>().clip.length)
             {
-                //result menu
-                result.SetActive(true);
-                result_Score.GetComponent<TextMeshProUGUI>().text = score.ToString();
-                result_Perfect.GetComponent<TextMeshProUGUI>().text = countPerfect.ToString();
-                result_Great.GetComponent<TextMeshProUGUI>().text = countGreat.ToString();
-                result_Miss.GetComponent<TextMeshProUGUI>().text = countMiss.ToString();
-                result_Combo.GetComponent<TextMeshProUGUI>().text = "Combo: " + maxcombo.ToString();
-                //use score to define rank, SSS+: 1000000, SSS: 990000, SS: 980000, S: 970000, A: 950000, B: 900000, C: 800000, D: 700000, F: 600000
-                //Color: SSS+:(256,128,0), SSS:yellow, SS:blue, S:green, A:purple, B:orange, C:red, D:gray, F:black
-                if (score == 1000000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "SSS+";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = new Color(1f, 0.5f, 0f);
-                }
-                else if (score >= 990000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "SSS";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
-                }
-                else if (score >= 980000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "SS";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
-                }
-                else if (score >= 970000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "S";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
-                }
-                else if (score >= 950000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "A";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.green;
-                }
-                else if (score >= 900000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "B";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.blue;
-                }
-                else if (score >= 800000)
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "C";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.red;
-                }
-                else
-                {
-                    result_Rank.GetComponent<TextMeshProUGUI>().text = "D";
-                    result_Rank.GetComponent<TextMeshProUGUI>().color = Color.red;
-                }
-                //APFC
-                if (countGreat == 0 && countMiss == 0)
-                {
-                    result_APFC.GetComponent<TextMeshProUGUI>().color = new Color(1f, 0.5f, 0f);
-                    result_APFC.GetComponent<TextMeshProUGUI>().text = "AP";
-                }
-                else if (countMiss == 0)
-                {
-                    result_APFC.GetComponent<TextMeshProUGUI>().color = Color.green;
-                    result_APFC.GetComponent<TextMeshProUGUI>().text = "FC";
-                }
-                else
-                {
-                    result_APFC.GetComponent<TextMeshProUGUI>().text = "";
-                }
-
+                ShowResult();
             }
+        }
 
-            // Update the count of perfect, great, miss, combo, and score
+        void ShowResult()
+        {
+            result.SetActive(true);
+            result_Score.GetComponent<TextMeshProUGUI>().text = score.ToString();
+            result_Perfect.GetComponent<TextMeshProUGUI>().text = countPerfect.ToString();
+            result_Great.GetComponent<TextMeshProUGUI>().text = countGreat.ToString();
+            result_Miss.GetComponent<TextMeshProUGUI>().text = countMiss.ToString();
+            result_Combo.GetComponent<TextMeshProUGUI>().text = "Combo: " + maxcombo.ToString();
+            UpdateRank();
+            UpdateAPFC();
+        }
+
+        void UpdateRank()
+        {
+            if (score == 1000000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "SSS+";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = new Color(1f, 0.5f, 0f);
+            }
+            else if (score >= 990000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "SSS";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            }
+            else if (score >= 980000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "SS";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            }
+            else if (score >= 970000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "S";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            }
+            else if (score >= 950000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "A";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.green;
+            }
+            else if (score >= 900000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "B";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.blue;
+            }
+            else if (score >= 800000)
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "C";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.red;
+            }
+            else
+            {
+                result_Rank.GetComponent<TextMeshProUGUI>().text = "D";
+                result_Rank.GetComponent<TextMeshProUGUI>().color = Color.red;
+            }
+        }
+
+        void UpdateAPFC()
+        {
+            if (countGreat == 0 && countMiss == 0)
+            {
+                result_APFC.GetComponent<TextMeshProUGUI>().color = new Color(1f, 0.5f, 0f);
+                result_APFC.GetComponent<TextMeshProUGUI>().text = "AP";
+            }
+            else if (countMiss == 0)
+            {
+                result_APFC.GetComponent<TextMeshProUGUI>().color = Color.green;
+                result_APFC.GetComponent<TextMeshProUGUI>().text = "FC";
+            }
+            else
+            {
+                result_APFC.GetComponent<TextMeshProUGUI>().text = "";
+            }
+        }
+
+        void UpdateScoreDisplay()
+        {
             countPerfectOBJ.GetComponent<TextMeshProUGUI>().text = "Perfect: " + countPerfect;
             countGreatOBJ.GetComponent<TextMeshProUGUI>().text = "Great: " + countGreat;
             countMissOBJ.GetComponent<TextMeshProUGUI>().text = "Miss: " + countMiss;
             countComboOBJ.GetComponent<TextMeshProUGUI>().text = combo.ToString();
-            //deactivate combo display if combo is 0
-            if (combo == 0)
-            {
-                countComboOBJ.SetActive(false);
-            }
-            else
-            {
-                countComboOBJ.SetActive(true);
-            }
 
-            // 更新顯示的分數，使用動畫效果
+            countComboOBJ.SetActive(combo != 0);
+
             if (displayedScore < score)
             {
                 displayedScore += Mathf.CeilToInt((score - displayedScore) * 0.1f);
@@ -511,26 +551,13 @@ namespace Game
                     displayedScore = score;
                 }
             }
-            scoreOBJ.GetComponent<TextMeshProUGUI>().text = displayedScore.ToString("D7"); // 格式化分數為7位數
+            scoreOBJ.GetComponent<TextMeshProUGUI>().text = displayedScore.ToString("D7");
+        }
 
-            if (!BGM.GetComponent<AudioSource>().isPlaying && (playing = true))
-            {
-                //SceneManager.LoadScene("SongSelect");
-            }
-
-            // Move all notes in the lists towards their targets
-            if (!isPause)
-            {
-                MoveNotes(_Note_1_List, TargetNote_1);
-                MoveNotes(_Note_2_List, TargetNote_2);
-                MoveNotes(_Note_3_List, TargetNote_3);
-                MoveNotes(_Note_4_List, TargetNote_4);
-            }
-
-            // Handle input
+        void HandleInput()
+        {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                //SceneManager.LoadScene("SongSelect");
                 pause.SetActive(!pause.activeSelf);
                 isPause = !isPause;
                 if (isPause)
@@ -542,14 +569,10 @@ namespace Game
                     BGM.GetComponent<AudioSource>().UnPause();
                 }
             }
+        }
 
-            HandleTargetVisibility(KeyCode.D, TargetNote_1);
-            HandleTargetVisibility(KeyCode.F, TargetNote_2);
-            HandleTargetVisibility(KeyCode.J, TargetNote_3);
-            HandleTargetVisibility(KeyCode.K, TargetNote_4);
-
-            // Instantiate notes on key press and calculate judgment
-
+        void HandleKeyPress()
+        {
             for (int i = 0; i < keys.Length; i++)
             {
                 if (Input.GetKeyDown(keys[i]))
