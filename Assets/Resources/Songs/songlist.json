@@ -1,25 +1,6 @@
 {
     "songs": [
         {
-            "id": "metronome",
-            "name": "全世界共通リズム感テスト",
-            "artist": "☆リズムに合わせてボタンを叩き達成率を競うゲームです☆",
-            "levels": [
-                {
-                    "diff": 0,
-                    "level": 8
-                },
-                {
-                    "diff": 1,
-                    "level": 10
-                },
-                {
-                    "diff": 2,
-                    "level": 12
-                }
-            ]
-        },
-        {
             "id": "raputa",
             "name": "raputa",
             "artist": "Sasakure.UK x TJ.Hengneil",
@@ -34,7 +15,7 @@
                 },
                 {
                     "diff": 2,
-                    "level": 12
+                    "level": "9+"
                 }
             ]
         },
@@ -53,7 +34,7 @@
                 },
                 {
                     "diff": 2,
-                    "level": 12
+                    "level": 10
                 }
             ]
         },
@@ -72,7 +53,7 @@
                 },
                 {
                     "diff": 2,
-                    "level": 12
+                    "level": 3
                 }
             ]
         },
