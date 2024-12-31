@@ -29,6 +29,8 @@ public class AudioManager : MonoBehaviour
         LoadAudioSettings();
         audioSlider.onValueChanged.AddListener(delegate { OnVolumeChange(); });
         audioButton.onClick.AddListener(delegate { ToggleMute(); });
+        GameObjects _audio = GameObject.FindGameObjectsWithTag("BGM");
+        _audio.GetComponent<AudioSource>().volume = audioVolume;
     }
 
     void OnVolumeChange()
