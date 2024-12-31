@@ -18,8 +18,8 @@ namespace Main
         {
             KeyManager keyManager = new KeyManager();
             keyManager.initkey();
-            QualitySettings.vSyncCount = 1;
-            Application.targetFrameRate = 60;
+            //QualitySettings.vSyncCount = 1;
+            //Application.targetFrameRate = 60;
         }
 
         public void Click()
