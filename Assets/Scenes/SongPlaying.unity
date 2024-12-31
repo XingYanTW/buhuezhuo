@@ -5455,7 +5455,7 @@ MonoBehaviour:
   JudgeAudio: {fileID: 1662894919}
   JudgeTime: {fileID: 1066013203}
   Playing: {fileID: 265268111}
-  speed: 1
+  speed: 1000
   perfectWindow: 80
   greatWindow: 126
   missWindow: 130
