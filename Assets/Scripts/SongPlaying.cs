@@ -556,7 +556,7 @@ namespace Game
 
         void HandleInput()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(keys[4]))
             {
                 pause.SetActive(!pause.activeSelf);
                 isPause = !isPause;

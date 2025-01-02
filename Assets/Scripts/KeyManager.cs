@@ -12,6 +12,7 @@ public class KeyManager : MonoBehaviour
     public Button button2;
     public Button button3;
     public Button button4;
+    public Button button5;
 
     public GameObject input;
 
@@ -28,6 +29,7 @@ public class KeyManager : MonoBehaviour
         button2.onClick.AddListener(() => OnButtonClick(2));
         button3.onClick.AddListener(() => OnButtonClick(3));
         button4.onClick.AddListener(() => OnButtonClick(4));
+        button5.onClick.AddListener(() => OnButtonClick(5));
     }
 
     private void Update()
@@ -74,7 +76,8 @@ public class KeyManager : MonoBehaviour
             key1 = KeyCode.D,
             key2 = KeyCode.F,
             key3 = KeyCode.J,
-            key4 = KeyCode.K
+            key4 = KeyCode.K,
+            key5 = KeyCode.Escape
         };
 
         string json = JsonUtility.ToJson(keyData);
@@ -91,6 +94,7 @@ public class KeyManager : MonoBehaviour
             button2.GetComponentInChildren<TextMeshProUGUI>().text = keyData.key2.ToString();
             button3.GetComponentInChildren<TextMeshProUGUI>().text = keyData.key3.ToString();
             button4.GetComponentInChildren<TextMeshProUGUI>().text = keyData.key4.ToString();
+            button5.GetComponentInChildren<TextMeshProUGUI>().text = keyData.key5.ToString();
         }
     }
 
@@ -118,6 +122,9 @@ public class KeyManager : MonoBehaviour
             case 4:
                 keyData.key4 = newKey;
                 break;
+            case 5:
+                keyData.key5 = newKey;
+                break;
         }
 
         currentButtonIndex = -1;
@@ -141,7 +148,8 @@ public class KeyManager : MonoBehaviour
             keyData.key1,
             keyData.key2,
             keyData.key3,
-            keyData.key4
+            keyData.key4,
+            keyData.key5
         };
     }
 
@@ -157,5 +165,6 @@ public class KeyManager : MonoBehaviour
         public KeyCode key2;
         public KeyCode key3;
         public KeyCode key4;
+        public KeyCode key5;
     }
 }
