@@ -1,6 +1,25 @@
 {
     "songs": [
         {
+            "id": "metronome",
+            "name": "metronome",
+            "artist": "metronome",
+            "levels": [
+                {
+                    "diff": 0,
+                    "level": 8
+                },
+                {
+                    "diff": 1,
+                    "level": 10
+                },
+                {
+                    "diff": 2,
+                    "level": "9+"
+                }
+            ]
+        },
+        {
             "id": "raputa",
             "name": "raputa",
             "artist": "Sasakure.UK x TJ.Hengneil",
